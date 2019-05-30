@@ -1,0 +1,35 @@
+{
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "eject": "expo eject",
+    "test": "node ./node_modules/jest/bin/jest.js --watchAll"
+  },
+  "jest": {
+    "preset": "jest-expo"
+  },
+  "dependencies": {
+    "@expo/samples": "2.1.1",
+    "apollo-boost": "^0.3.1",
+    "apollo-link-context": "^1.0.17",
+    "expo": "^32.0.0",
+    "graphql": "^14.3.0",
+    "graphql-tag": "^2.10.1",
+    "lodash": "^4.17.11",
+    "prop-types": "^15.7.2",
+    "react": "16.5.0",
+    "react-apollo": "^2.5.5",
+    "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
+    "react-native-elements": "^1.1.0",
+    "react-native-swiper": "^1.5.14",
+    "react-navigation": "^3.0.9",
+    "validate.js": "^0.12.0"
+  },
+  "devDependencies": {
+    "babel-preset-expo": "^5.0.0",
+    "jest-expo": "^32.0.0"
+  },
+  "private": true
+}

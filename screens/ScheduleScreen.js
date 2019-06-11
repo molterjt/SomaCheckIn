@@ -434,9 +434,19 @@ class ScheduleScreen extends React.Component {
                                         {
                                             this.state.academyTitle === null && this.state.daySearch === null
                                                 ? (
-                                                    <View style={{flex:1, alignItems: 'center', marginTop:30}}>
-                                                        <Text style={{fontStyle:'italic', fontSize: 16}}>Filter By Academy or Day</Text>
-                                                    </View>
+
+                                                    <FlatList
+                                                        data={_sortBy(classData, 'dayValue')}
+                                                        keyExtractor={this._keyExtractor}
+                                                        renderItem={this._renderDayClassPeriods}
+                                                        refreshControl={
+                                                            <RefreshControl
+                                                                refreshing={this.state.refreshing}
+                                                                onRefresh={this._onRefresh}
+                                                                tintColor={'#931414'}
+                                                            />
+                                                        }
+                                                    />
                                                 )
                                                 : null
                                         }
@@ -574,3 +584,6 @@ const styles = StyleSheet.create({
     },
 });
 
+{/*<View style={{flex:1, alignItems: 'center', marginTop:30}}>*/}
+{/*<Text style={{fontStyle:'italic', fontSize: 16}}>Filter By Academy or Day</Text>*/}
+{/*</View>*/}

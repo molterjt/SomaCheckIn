@@ -4,17 +4,21 @@ import {
     ScrollView, StyleSheet,
     View, Text, TextInput,
     Image, TouchableOpacity,
-    Animated, Button,
+    Animated, Button, Modal, TouchableWithoutFeedback, Picker,
 } from 'react-native';
 import MenuButton from '../components/MenuButton';
 import SomaShield from '../assets/images/SomaJJ_Logo.png';
 import Belt from '../components/Belt';
 import AddPerson from '../components/AddPerson';
+import FullRosterButton from '../components/FullRosterButton'
 import ListItem from '../components/ListItem';
+import DeleteCheckIn from '../components/DeleteACheckIn';
 import Colors from '../constants/Colors';
-import {Query, graphql} from 'react-apollo'
+import {Query, graphql, compose} from 'react-apollo'
 import gql from 'graphql-tag';
 import {withNavigation} from "react-navigation";
+import {Ionicons, EvilIcons} from '@expo/vector-icons';
+
 
 const UserList = gql`
     query{
@@ -32,6 +36,28 @@ const UserList = gql`
     }
 `;
 
+const checkInsByUserAndClassSession = gql`
+    query checkInsByUserAndClassSession($userId: ID, $classSessionTitle: String){
+        checkInsByUserAndClassSession(userId: $userId, classSessionTitle: $classSessionTitle){
+            checked
+            user{
+              firstName
+              id
+            }
+            classSession{
+              title
+              date
+              academy{title}
+              classPeriod{
+                day
+                time
+                title
+              }
+            }
+        }
+    }
+`;
+
 const AcademyRoster = gql`
   query academyRoster($academyTitle: String!){
     academyRoster(academyTitle: $academyTitle){
@@ -43,6 +69,22 @@ const AcademyRoster = gql`
         position
         joinDate
         stripeCount
+        checkIns{
+            id
+            checked
+            classSession{
+                id
+                title
+                date
+                classPeriod{
+                    id
+                    title
+                    id
+                    day
+                    time
+                }
+            }
+        }
     }
   }  
 `;
@@ -58,10 +100,196 @@ const SearchUser = gql`
         position
         joinDate
         stripeCount
+        checkIns{
+            id
+            checked
+            classSession{
+                id
+                title
+                date
+                classPeriod{
+                    id
+                    title
+                    id
+                    day
+                    time
+                }
+            }
+        }
     }
   }  
 `;
 
+const ClassPeriodsToday = gql`
+    query classPeriodsToday($academyTitle: String, $daySearch:String){
+      classPeriodsToday(academyTitle: $academyTitle, daySearch: $daySearch){
+        title
+        stamp
+        id
+        day
+        time
+        instructor{ 
+            id
+        }
+        academy{
+            title
+            id
+        }
+        classSessions{
+            id
+            title
+            date
+            checkIns{
+                checked
+                user{
+                    firstName
+                }
+            }
+        }
+      }
+    }
+`;
+
+const ClassPeriodsTodayWithTime = gql`
+    query classPeriodsTodayWithTime($academyTitle: String, $daySearch:String, $timeSearch: String){
+      classPeriodsTodayWithTime(academyTitle: $academyTitle, daySearch: $daySearch, timeSearch:$timeSearch){
+        title
+        stamp
+        id
+        day
+        academy{
+            title
+            id
+            users{
+                id
+                firstName
+                lastName
+                email
+                beltColor
+                position
+                joinDate
+                stripeCount
+            }
+        }
+        time
+        classSessions{
+            id
+            title
+            date
+            checkIns{
+                checked
+                user{
+                    firstName
+                }
+            }
+        }
+      }
+    }
+`;
+
+const UpsertClassSession = gql`
+    mutation (
+       
+        $classPeriodId: ID,
+        $instructorId:ID,
+        $academyId:ID
+        $checkInValues: [CheckInCreateWithoutClassSessionInput]
+    ){
+        updateOrCreateClassSession(
+            
+            classPeriodId: $classPeriodId
+            instructorId: $instructorId
+            academyId: $academyId
+            checkInValues: $checkInValues 
+        ){
+            id
+            date
+            createdAt
+            academy{title}
+            techniques{title}
+            instructor{user{firstName}}
+            checkIns{checked, user{id, firstName}}
+        }
+    }
+    
+`;
+
+const CREATE_CHECKIN = gql`
+    mutation createCheckIn($userId: ID!, $classSessionTitle: String, $checked: Boolean ){
+      createCheckIn(
+        checked: $checked
+        userId: $userId
+        classSessionTitle: $classSessionTitle
+    
+      ){
+        id
+        checked
+        user{firstName}
+        classSession{title}
+      }
+    }
+`;
+
+const DELETE_CHECKIN = gql`
+    mutation deleteCheckIn($id: ID!){
+      deleteCheckIn(id: id){
+        id
+        classSession{title}
+      }
+    }
+`;
+
+
+class CheckInStatus extends React.Component{
+    constructor(props){
+        super(props);
+    }
+    render(){
+        return(
+            <View>
+                <Query query={checkInsByUserAndClassSession} variables={{userId: this.props.userId, classSessionTitle: this.props.classSessionTitle}} fetchPolicy={'network-only'}>
+                    {({loading, error, data}) => {
+                        if(loading){
+                            return(
+                                <View>
+                                    <Text>Loading</Text>
+                                </View>
+                            )
+                        }
+                        if(error){
+                            console.log(error.message);
+                            return(<View><Text>`Error! ${error.message}`</Text></View>)
+                        }
+                        let checkMark;
+                        {data.checkInsByUserAndClassSession.map((obj, index) => {
+                            if(obj.classSession.title === this.props.classSessionTitle){
+                                return checkMark = obj;
+                            }
+                        })}
+                        console.log('checkMark: ', checkMark);
+                        return(
+                            <View style={{marginTop: 5}}>
+                                {checkMark
+                                    ? <Ionicons
+                                        name={"md-checkmark-circle"}
+                                        color={"#1cb684"}
+                                        size={32}
+                                    />
+                                    : null
+                                }
+
+                            </View>
+                        )
+                    }}
+                </Query>
+            </View>
+        );
+    }
+}
+CheckInStatus.propTypes = {
+    userId: PropTypes.string,
+    classSessionTitle: PropTypes.string,
+};
 
 
 class RosterRow extends React.Component{
@@ -82,7 +310,7 @@ class RosterRow extends React.Component{
 
             <TouchableOpacity
                 onPress={ () => this.props.navigation.navigate('Person', {itemId: this.props.memberId})}
-                style={styles.rosterRow}
+                style={[styles.rosterRow, {backgroundColor: (this.props.checkedIn ? "red" : null)}]}
             >
                 <View style={styles.profileBeltContainer}>
                     <Belt
@@ -97,6 +325,10 @@ class RosterRow extends React.Component{
                     </Text>
                 </View>
                 <View style={styles.profileJoinDateContainer}>
+                    <CheckInStatus
+                        userId={this.props.memberId}
+                        classSessionTitle={this.props.classSessionTitle}
+                    />
                     <Text style={styles.profileJoinDate}>
                         {this.props.joinDate}
                     </Text>
@@ -115,6 +347,8 @@ RosterRow.propTypes = {
     lastName: PropTypes.string,
     BlackBelt: PropTypes.bool,
     viewPerson: PropTypes.func,
+    checkedIn: PropTypes.bool,
+    classSessionTitle: PropTypes.string,
 
 };
 
@@ -124,15 +358,60 @@ class RosterList extends React.Component{
         super(props);
         this.state={
             academyTitle: null,
+            timeSearch: null,
+            selectedClassPeriod: null,
+            todayClassSession: undefined,
+            instructorId: undefined,
+            academyId: undefined,
+            checkInValues: undefined,
+
+
             showClearButton: false,
+            showUndoButton: false,
             selectedOptions: [
                 {"Location": "Dayton", "selected": false},
                 {"Location": "Oxford", "selected": false},
                 {"Location": "West Chester", "selected": false},
             ],
 
-        }
+
+        };
+        // this.touch = React.createRef();
+        this.timeButtons = [];
     }
+    _submitUpsertClassSession = async (userId) => {
+        const memberArray = [];
+        const newPerson = Object.assign({"userId": userId, "checked":true});
+        console.log('newPerson: ', newPerson);
+        memberArray.push(newPerson);
+        this.setState({checkInValues: memberArray});
+        console.log('title: ', this.state.todayClassSession);
+        console.log('classPeriodId: ', this.state.classPeriodId);
+        console.log('instructorId: ', this.state.instructorId);
+        console.log('academyId: ', this.state.academyId);
+        console.log('checkInValues: ', this.state.checkInValues);
+        const result = await this.props.mutate({
+            variables: {
+                //title: this.state.todayClassSession,
+                classPeriodId: this.state.selectedClassPeriod.id,
+                instructorId: this.state.instructorId,
+                academyId: this.state.academyId,
+                checkInValues: this.state.checkInValues,
+            }
+        }).catch(error => {
+            console.log('Failure of UpsertClassSession: ', error);
+        });
+        if(result){
+            console.log('Success Result: ', result);
+
+        }
+
+    };
+
+    setNativeProps = (x, nativeProps) => {
+        x.setNativeProps(nativeProps);
+    };
+
     clearSelections(){
         let newSelections = [...this.state.selectedOptions];
         newSelections.map(obj => obj.selected = false);
@@ -152,76 +431,224 @@ class RosterList extends React.Component{
         this.updateChoice(searchString);
         this.setState({
             academyTitle: searchString,
+            showUndoButton: true,
+            timeSearch: null,
+            selectedClassPeriod: null,
+        });
+        this.timeButtons = [];
+    }
+    _handleAClassPeriodButtonPress(classPeriodObject){
+        const today = new Date().toDateString();
+        const titleSelector = today.concat("__", classPeriodObject.id);
+        this.setState({
+            timeSearch: classPeriodObject.time,
+            selectedClassPeriod: classPeriodObject,
+            todayClassSession: titleSelector,
+            classPeriodId: classPeriodObject.id,
+            academyId: classPeriodObject.academy.id,
+            instructorId: classPeriodObject.instructor.id,
             showClearButton: true,
         });
-
+        console.log('TimeSearch: ', classPeriodObject.time);
+        console.log('state.timeSearch: ', this.state.timeSearch);
     }
     render(){
+        console.log('timeButtons[].length: ', this.timeButtons.length);
+        console.log('state.timeSearch: ', this.state.timeSearch);
+        console.log('state.selectedClassPeriod: ', this.state.selectedClassPeriod);
+        console.log('state.todayClassSession: ', this.state.todayClassSession);
         return(
             <ScrollView
                 contentContainer={{justifyContent:'flex-start', alignItems:'center'}}
-                style={{ width:'100%', marginTop:5, paddingBottom: 20}}>
-                <View style={{
-                    flexDirection:'row',
-                    justifyContent: 'space-around',
-                    borderWidth:2,
-                    borderStyle: 'double',
-                    padding:5,
-                    backgroundColor: 'rgba(0,0,0,0.8)'
-                }}>
-                    <TouchableOpacity
-                        style={
-                            [styles.academySearchButton,
-                                {backgroundColor: (this.state.selectedOptions[0].selected ? 'rgba(250,250,250,0.8)' : "#8c030b")},
-                            ]
-                        }
-                        onPress={() => {
-                            this._handleAcademySearchButtonPress('Dayton');
-                        }}
+                style={{ width:'100%', marginTop:5, paddingBottom: 20,}}>
+                {
+                    this.state.showUndoButton
+                        ? (
 
-                    >
-                        <Text style={ {color: (this.state.selectedOptions[0].selected ? "#8c030b" : "white")}}>Dayton</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={
-                            [styles.academySearchButton,
-                                {backgroundColor: (this.state.selectedOptions[1].selected ? 'rgba(250,250,250,0.8)' : "#8c030b")},
-                            ]
-                        }
-                        onPress={() => {
-                            this._handleAcademySearchButtonPress('Oxford');
-                        }}
+                            <EvilIcons
+                                name={"undo"}
+                                color={"#1cb684"}
+                                style={{textAlign:'center', fontWeight:'bold',alignSelf: 'center', marginBottom:3}}
+                                size={32}
+                                onPress={() => {
+                                    this.setState({
+                                        academyTitle: null,
+                                        timeSearch: null,
+                                        selectedClassPeriod: null,
+                                        showClearButton: false,
+                                        showUndoButton: false,
+                                        todayClassSession: undefined,
+                                    });
+                                    this.clearSelections();
+                                    this.timeButtons = [];
+                                }}
+                            />
 
-                    >
-                        <Text style={ {color: (this.state.selectedOptions[1].selected ? "#8c030b" : "white")}}>Oxford</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={
-                            [styles.academySearchButton,
-                                {backgroundColor: (this.state.selectedOptions[2].selected ? 'rgba(250,250,250,0.8)': "#8c030b")}
-                            ]
-                        }
-                        onPress={() => {
-                            this._handleAcademySearchButtonPress('West Chester');
-                        }}
 
-                    >
-                        <Text style={ {color: (this.state.selectedOptions[2].selected ? "#8c030b" : "white")}}>West Chester</Text>
+                        )
+                        : null
+                }
 
-                    </TouchableOpacity>
-                </View>
+
+                {
+                    this.state.academyTitle === null && this.state.timeSearch === null
+                    ? (
+                        <View style={{
+                            flexDirection:'row',
+                            justifyContent: 'space-around',
+                            borderWidth:1,
+                            borderColor:'white',
+                            padding:5,
+                            backgroundColor: 'rgba(0,0,0,0.8)'
+                        }}>
+                            <TouchableOpacity
+                                style={
+                                    [styles.academySearchButton,
+                                        {backgroundColor: (this.state.selectedOptions[0].selected ? '#1cb684' : "#0c48c2")},
+                                    ]
+                                }
+                                onPress={() => {
+                                    this._handleAcademySearchButtonPress('Dayton');
+                                }}
+
+                            >
+                                <Text style={ {color: "white"}}>Dayton</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={
+                                    [styles.academySearchButton,
+                                        {backgroundColor: (this.state.selectedOptions[1].selected ? '#1cb684' : "#0c48c2")},
+                                    ]
+                                }
+                                onPress={() => {
+                                    this._handleAcademySearchButtonPress('Oxford');
+                                }}
+
+                            >
+                                <Text style={ {color: "white"}}>Oxford</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={
+                                    [styles.academySearchButton,
+                                        {backgroundColor: (this.state.selectedOptions[2].selected ? '#1cb684': "#0c48c2")}
+                                    ]
+                                }
+                                onPress={() => {
+                                    this._handleAcademySearchButtonPress('West Chester');
+                                }}
+
+                            >
+                                <Text style={ {color:  "white" }}>West Chester</Text>
+
+                            </TouchableOpacity>
+                        </View>
+                    )
+                    : <View style={{
+                            flexDirection:'row',
+                            justifyContent: 'space-around',
+                            padding:0,
+                            backgroundColor: 'rgba(0,0,0,0.8)'
+                        }}>
+                            <Text
+                            style={{
+                                color: '#fff',
+                                padding:5,
+                                fontWeight:'bold',
+                                textAlign:'center',
+                                fontSize:18
+                            }}
+                            >
+                                {this.state.academyTitle}
+                            </Text>
+                        </View>
+                }
+
+
                 {
                     this.state.academyTitle === null
-                    ? null
-                : (
-                    <Query query={AcademyRoster} variables={{academyTitle: this.state.academyTitle}} fetchPolicy={'network-only'}>
+                        ? null
+                        : (
+                            <Query
+                                query={ClassPeriodsToday}
+                                variables={{
+                                    academyTitle: this.state.academyTitle,
+                                    daySearch: this.state.daySearch,
+
+                                }}
+                                fetchPolicy={'network-only'}
+                            >
+                                {({loading, error, data}) => {
+                                    if(loading){
+                                        return(<View><Text>Loading</Text></View>)
+                                    }
+                                    if(error){
+                                        console.log(error.message);
+                                        return(<View><Text>`Error! ${error.message}`</Text></View>)
+                                    }
+                                    return(
+                                        <View style={{
+                                            flexDirection:'row',
+                                            justifyContent: 'space-around',
+                                            borderWidth:1,
+                                            borderColor: 'white',
+                                            padding:5,
+                                            // backgroundColor: 'rgba(0,0,0,0.8)'
+                                        }}>
+                                            {data.classPeriodsToday.map((obj, index) => (
+                                                <TouchableOpacity
+                                                    ref={component => this.timeButtons[index] = component}
+                                                    key={index}
+                                                    style={
+                                                        [styles.academySearchButton,
+                                                            {backgroundColor:"#0c48c2"},
+                                                        ]
+                                                    }
+                                                    onPress={() => {
+                                                        this._handleAClassPeriodButtonPress(obj);
+                                                        console.log('this.timeButtons[] ', this.timeButtons);
+                                                        console.log('length== ', this.timeButtons.length );
+                                                        if(this.timeButtons.length > 1){
+                                                            this.timeButtons.map((button, i) => {
+                                                                if(i === index){
+                                                                    this.setNativeProps(this.timeButtons[index], {backgroundColor: '#1cb684'});
+                                                                }
+                                                                else {
+                                                                    this.setNativeProps(this.timeButtons[i], {backgroundColor:'#0c48c2'})
+                                                                }
+                                                            })
+                                                        } else{
+                                                            this.setNativeProps(this.timeButtons[0], {backgroundColor: '#1cb684'} )
+                                                        }
+                                                        console.log("Ref ===> ",this.timeButtons[index].props.style[1].backgroundColor)
+                                                    }}
+
+                                                >
+                                                    <Text style={ {color: "white"}}>{obj.time}</Text>
+                                                </TouchableOpacity>
+                                            ))}
+                                        </View>
+                                    )
+                                }}
+                            </Query>
+                        )
+                }
+
+
+                {
+                 this.state.timeSearch !== null
+                ? (
+                    <Query
+                        query={ClassPeriodsTodayWithTime}
+                        variables={{
+                            academyTitle: this.state.academyTitle,
+                            daySearch: this.state.daySearch,
+                            timeSearch: this.state.timeSearch
+                        }}
+                        fetchPolicy={'network-only'}
+                    >
                         {({loading, error, data}) => {
                             if(loading){
-                                return(
-                                    <View>
-                                        <Text>Loading</Text>
-                                    </View>
-                                )
+                                return(<View><Text>Loading</Text></View>)
                             }
                             if(error){
                                 console.log(error.message);
@@ -229,39 +656,71 @@ class RosterList extends React.Component{
                             }
                             return(
                                 <View style={{marginTop: 5}}>
-                                    {data.academyRoster.map((obj, index) => (
-                                        <ListItem
-                                            key={index}
-                                            onSwipeFromLeft={() => console.log('swiped from left!')}
-                                            onRightPress={() => console.log('pressed right!')}
-                                            swipeWhat={
-                                                <RosterRow
-                                                    key={index}
-                                                    memberId={obj.id}
-                                                    beltColor={obj.beltColor}
-                                                    stripeCount={obj.stripeCount}
-                                                    joinDate={obj.joinDate}
-                                                    firstName={obj.firstName}
-                                                    lastName={obj.lastName}
-                                                    navigation={this.props.navigation}
-                                                />
+                                    {data.classPeriodsTodayWithTime.map((obj, index) => (
+                                        <View key={index}>
+                                            {/** Class Period for CheckIn Status **/}
+                                            <Text
+                                                style={{
+                                                    color: '#0c48c2',
+                                                    padding:5,
+                                                    fontWeight:'bold',
+                                                    textAlign:'center',
+                                                    fontStyle:'italic',
+                                                }}
+                                            >{obj.title} -- {obj.day} at {obj.time}</Text>
+                                            {obj.academy.users.map((x, index) => (
+                                                    <ListItem
+                                                        key={index}
+                                                        onSwipeFromLeft={() =>
+                                                            this._submitUpsertClassSession(x.id)
+                                                        }
+                                                        onRightPress={() => console.log('pressed right!')}
+                                                        swipeWhat={
+                                                            <RosterRow
+                                                                key={x.id}
+                                                                memberId={x.id}
+                                                                beltColor={x.beltColor}
+                                                                stripeCount={x.stripeCount}
+                                                                joinDate={x.joinDate}
+                                                                firstName={x.firstName}
+                                                                lastName={x.lastName}
+                                                                navigation={this.props.navigation}
+                                                                checkedIn={false}
+                                                                classSessionTitle={this.state.todayClassSession}
+                                                                //classSessionTitle={"Tue Jun 04 2019__cjw1kxp9c053r0882omxxn8qs"}
+                                                            />
+                                                        }
+                                                    />
+                                                )
+                                              )
                                             }
-                                        />
+                                        </View>
+                                        )
+                                      )
+                                    }
 
-                                    ))}
                                 </View>
                             )
                         }}
                     </Query>
                     )
+                    : null
                 }
                 {
                     this.state.showClearButton
                     ? ( <Button
                             title={'Clear'}
                             onPress={() => {
-                                this.setState({academyTitle: null, showClearButton: false});
+                                this.setState({
+                                    academyTitle: null,
+                                    timeSearch: null,
+                                    selectedClassPeriod: null,
+                                    showClearButton: false,
+                                    showUndoButton: false,
+                                    todayClassSession: undefined,
+                                });
                                 this.clearSelections();
+                                this.timeButtons = [];
                             }}
                         />
                     )
@@ -272,13 +731,120 @@ class RosterList extends React.Component{
         );
     }
 }
+const RosterListGraphQL = graphql(UpsertClassSession)(RosterList);
 
 class SearchUsers extends React.Component{
     constructor(props){
         super(props);
         this.state= {
             searchString: '',
+            showCheckInModal: false,
+
+            academyTitle: null,
+            timeSearch: null,
+            selectedClassPeriod: null,
+            todayClassSession: undefined,
+            instructorId: undefined,
+            academyId: undefined,
+            userId: undefined,
+            checkInValues: undefined,
+            myCheckInResult: undefined,
+
+
+            showClearButton: false,
+            showUndoButton: false,
+
+            selectedOptions: [
+                {"Location": "Dayton", "selected": false},
+                {"Location": "Oxford", "selected": false},
+                {"Location": "West Chester", "selected": false},
+            ],
         }
+        this.timeButtons = [];
+        this.checkInButton = React.createRef();
+    };
+    _createCheckin = async () => {
+        console.log('title: ', this.state.todayClassSession);
+        console.log('classPeriodId: ', this.state.classPeriodId);
+        console.log('instructorId: ', this.state.instructorId);
+        console.log('academyId: ', this.state.academyId);
+        console.log('userId: ', this.state.userId);
+        const result = await this.props.createCheckIn({
+            variables: {
+                checked: true,
+                userId: this.state.userId,
+                classSessionTitle: this.state.todayClassSession,
+            }
+        }).catch(error => {
+            console.log('Failure of createCheckin: ', error);
+        });
+        if(result){
+            console.log('Success Result: ', result);
+            this.setState({myCheckInResult: result});
+        }
+    };
+
+    setNativeProps = (x, nativeProps) => {
+        x.setNativeProps(nativeProps);
+    };
+
+    clearSelections(){
+        let newSelections = [...this.state.selectedOptions];
+        newSelections.map(obj => obj.selected = false);
+        this.setState({selectedOptions: newSelections});
+    }
+    updateChoice(type) {
+        let newSelections = [...this.state.selectedOptions];
+        newSelections.filter(obj =>
+            obj.Location === type
+                ? obj.selected = true
+                : obj.selected = false
+        );
+        this.setState({selectedOptions: newSelections});
+    }
+
+    _handleAcademySearchButtonPress(searchString){
+        this.updateChoice(searchString);
+        this.setState({
+            academyTitle: searchString,
+            showUndoButton: true,
+            timeSearch: null,
+            selectedClassPeriod: null,
+        });
+        this.timeButtons = [];
+    }
+    _handleAClassPeriodButtonPress(classPeriodObject){
+        const today = new Date().toDateString();
+        const titleSelector = today.concat("__", classPeriodObject.id);
+        this.setState({
+            timeSearch: classPeriodObject.time,
+            selectedClassPeriod: classPeriodObject,
+            todayClassSession: titleSelector,
+            classPeriodId: classPeriodObject.id,
+            academyId: classPeriodObject.academy.id,
+            instructorId: classPeriodObject.instructor.id,
+            showClearButton: true,
+        });
+        console.log('TimeSearch: ', classPeriodObject.time);
+        console.log('state.timeSearch: ', this.state.timeSearch);
+    }
+
+    _handleRemoveCheckIn = async (checkIn) => {
+        const result = await this.props.deleteCheckIn({
+            variables:{
+                id: checkIn
+            }
+        }).catch(error => {
+            console.log('Failure of deleteCheckIn: ', error);
+        });
+        if(result){
+            console.log('Success Result: ', result);
+            this.setState({myCheckInResult: result});
+        }
+
+    }
+    _toggleCheckInModal = () => {
+        this.setState({showCheckInModal: !this.state.showCheckInModal})
     };
     render(){
         return(
@@ -295,13 +861,10 @@ class SearchUsers extends React.Component{
                 }}>
                     <TextInput
                         style={styles.textInput}
-                        onChangeText={(searchString) => {
-                            this.setState({searchString});
-                        }}
+                        onChangeText={(searchString) =>  this.setState({searchString}) }
                         value={this.state.searchString}
                         type={'text'}
                         accessibilityLabel={'Search Member field for Roster Search'}
-                        autoCapitalize={'none'}
                         underlineColorAndroid={'transparent'}
                         autoCorrect={false}
                         placeholderTextColor={'#4f4f4f'}
@@ -326,13 +889,22 @@ class SearchUsers extends React.Component{
                                         console.log(error.message);
                                         return(<View><Text>`Error! ${error.message}`</Text></View>)
                                     }
+
+                                    console.log('searchUserByName: ', data.searchUserByName)
                                     return(
                                         <View style={{marginTop: 5}}>
                                             {data.searchUserByName.map((obj, index) => (
                                                 <ListItem
                                                     key={index}
-                                                    onSwipeFromLeft={() => console.log('swiped from left!')}
-                                                    onRightPress={() => console.log('pressed right!')}
+                                                    onSwipeFromLeft={() => {
+                                                        this.setState({userId: obj.id })
+                                                        this._toggleCheckInModal();
+
+                                                    }}
+                                                    onRightPress={() => {
+                                                        console.log('this.state.myCheckInResult: ', this.state.myCheckInResult.data.createCheckIn.id);
+                                                        this._handleRemoveCheckIn(this.state.myCheckInResult.data.createCheckIn.id);
+                                                    }}
                                                     swipeWhat={
                                                         <RosterRow
                                                             key={index}
@@ -343,6 +915,9 @@ class SearchUsers extends React.Component{
                                                             firstName={obj.firstName}
                                                             lastName={obj.lastName}
                                                             navigation={this.props.navigation}
+                                                            classSessionTitle={this.state.todayClassSession}
+                                                            //classSessionTitle={"Tue Jun 04 2019__cjw1kxp9c053r0882omxxn8qs"}
+
                                                         />
                                                     }
                                                 />
@@ -354,10 +929,312 @@ class SearchUsers extends React.Component{
                             </Query>
                         )
                 }
+                <Modal
+                    transparent={true}
+                    animationType={"none"}
+                    visible={this.state.showCheckInModal}
+                    onRequestClose={() => this._toggleCheckInModal() }
+                >
+                    <TouchableOpacity
+                        onPress={() => this._toggleCheckInModal()}
+                    >
+                        <ScrollView contentContainerStyle={styles.modalContainer} showsVerticalScrollIndicator={false}>
+                            <TouchableWithoutFeedback>
+                                <View style={{backgroundColor: 'rgba(250,250,250,1)', height: '60%', width: '70%', borderWidth:1}}>
+                                    <View style={{
+                                        backgroundColor:'#fff',flexDirection:"column",
+                                        justifyContent: 'center', margin: 3,
+                                         width: 'auto', padding: 5
+                                    }}
+                                    >
+                                        <Button
+                                            title={'Close'}
+                                            onPress={() => this._toggleCheckInModal()}
+                                        />
+                                        {
+                                            this.state.showUndoButton
+                                                ? (
+
+                                                    <EvilIcons
+                                                        name={"undo"}
+                                                        color={"#1cb684"}
+                                                        style={{textAlign:'center', fontWeight:'bold',alignSelf: 'center', marginBottom:3}}
+                                                        size={32}
+                                                        onPress={() => {
+                                                            this.setState({
+                                                                academyTitle: null,
+                                                                timeSearch: null,
+                                                                selectedClassPeriod: null,
+                                                                showClearButton: false,
+                                                                showUndoButton: false,
+                                                                todayClassSession: undefined,
+                                                            });
+                                                            this.clearSelections();
+                                                            this.timeButtons = [];
+                                                        }}
+                                                    />
+
+
+                                                )
+                                                : null
+                                        }
+
+
+                                        {
+                                            this.state.academyTitle === null && this.state.timeSearch === null
+                                                ? (
+                                                    <ScrollView
+                                                        horizontal={true}
+                                                        showsHorizontalScrollIndicator={true}
+                                                        overScrollMode={'always'}
+                                                        centerContent={false}
+                                                        contentOffset={{x:40, y:0}}
+                                                        snapToAlignment={'center'}
+                                                        bounce={true}
+                                                        style={{
+                                                            flexDirection:'row',
+                                                            borderWidth:1,
+                                                            borderColor:'white',
+                                                            padding:5,
+                                                            backgroundColor: 'rgba(0,0,0,0.8)',
+
+                                                        }}
+                                                        contentContainer={{justifyContent:'center', alignItems:'center' }}
+                                                    >
+                                                        <TouchableOpacity
+                                                            style={
+                                                                [styles.academySearchButton,
+                                                                    {backgroundColor: "#0c48c2", marginLeft: 15, marginRight:15, height: 40,  alignSelf:'center'},
+                                                                ]
+                                                            }
+                                                            onPress={() => {
+                                                                this._handleAcademySearchButtonPress('Dayton');
+                                                            }}
+
+                                                        >
+                                                            <Text style={ {color: "white"}}>Dayton</Text>
+                                                        </TouchableOpacity>
+                                                        <TouchableOpacity
+                                                            style={
+                                                                [styles.academySearchButton,
+                                                                    {backgroundColor: "#0c48c2", marginLeft: 15, marginRight:15, height: 40,  alignSelf:'center'},
+                                                                ]
+                                                            }
+                                                            onPress={() => {
+                                                                this._handleAcademySearchButtonPress('Oxford');
+                                                            }}
+
+                                                        >
+                                                            <Text style={ {color: "white"}}>Oxford</Text>
+                                                        </TouchableOpacity>
+                                                        <TouchableOpacity
+                                                            style={
+                                                                [styles.academySearchButton,
+                                                                    {backgroundColor: "#0c48c2", marginLeft: 15, marginRight:15, height: 40, alignSelf:'center'},
+                                                                ]
+                                                            }
+                                                            onPress={() => {
+                                                                this._handleAcademySearchButtonPress('West Chester');
+                                                            }}
+
+                                                        >
+                                                            <Text style={ {color:  "white" }}>West Chester</Text>
+
+                                                        </TouchableOpacity>
+                                                    </ScrollView>
+                                                )
+                                                : <View style={{
+                                                    flexDirection:'row',
+                                                    justifyContent: 'space-around',
+                                                    padding:0,
+                                                    backgroundColor: 'rgba(0,0,0,0.8)',
+                                                    width: '100%'
+                                                }}>
+                                                    <Text
+                                                        style={{
+                                                            color: '#fff',
+                                                            padding:5,
+                                                            fontWeight:'bold',
+                                                            textAlign:'center',
+                                                            fontSize:18
+                                                        }}
+                                                    >
+                                                        {this.state.academyTitle}
+                                                    </Text>
+                                                </View>
+                                        }
+
+
+                                        {
+                                            this.state.academyTitle === null
+                                                ? null
+                                                : (
+                                                    <Query
+                                                        query={ClassPeriodsToday}
+                                                        variables={{
+                                                            academyTitle: this.state.academyTitle,
+                                                            daySearch: this.state.daySearch,
+
+                                                        }}
+                                                        fetchPolicy={'network-only'}
+                                                    >
+                                                        {({loading, error, data}) => {
+                                                            if(loading){
+                                                                return(<View><Text>Loading</Text></View>)
+                                                            }
+                                                            if(error){
+                                                                console.log(error.message);
+                                                                return(<View><Text>`Error! ${error.message}`</Text></View>)
+                                                            }
+                                                            return(
+                                                                <ScrollView
+                                                                    horizontal={true}
+                                                                    showsHorizontalScrollIndicator={true}
+                                                                    overScrollMode={'always'}
+                                                                    centerContent={false}
+                                                                    contentOffset={{x:0, y:0}}
+                                                                    snapToAlignment={'start'}
+                                                                    bounce={true}
+                                                                    style={{
+                                                                        flexDirection:'row',
+                                                                        borderWidth:1,
+                                                                        borderColor:'#000',
+                                                                        padding:8,
+                                                                    }}
+                                                                    contentContainer={{justifyContent:'center', alignItems:'center' }}
+                                                                >
+                                                                    {data.classPeriodsToday.map((obj, index) => (
+                                                                        <TouchableOpacity
+                                                                            ref={component => this.timeButtons[index] = component}
+                                                                            key={index}
+                                                                            style={
+                                                                                [styles.academySearchButton,
+                                                                                    {backgroundColor: "#0c48c2", marginLeft: 15, marginRight:15, height: 40,  alignSelf:'center'},
+                                                                                ]
+                                                                            }
+                                                                            onPress={() => {
+                                                                                this._handleAClassPeriodButtonPress(obj);
+                                                                                console.log('this.timeButtons[] ', this.timeButtons);
+                                                                                console.log('length== ', this.timeButtons.length );
+                                                                                if(this.timeButtons.length > 1){
+                                                                                    this.timeButtons.map((button, i) => {
+                                                                                        if(i === index){
+                                                                                            this.setNativeProps(this.timeButtons[index], {backgroundColor: '#1cb684'});
+                                                                                        }
+                                                                                        else {
+                                                                                            this.setNativeProps(this.timeButtons[i], {backgroundColor:'#0c48c2'})
+                                                                                        }
+                                                                                    })
+                                                                                } else{
+                                                                                    this.setNativeProps(this.timeButtons[0], {backgroundColor: '#1cb684'} )
+                                                                                }
+                                                                                console.log("Ref ===> ",this.timeButtons[index].props.style[1].backgroundColor)
+                                                                            }}
+
+                                                                        >
+                                                                            <Text style={ {color: "white"}}>{obj.time}</Text>
+                                                                        </TouchableOpacity>
+                                                                    ))}
+                                                                </ScrollView>
+                                                            )
+                                                        }}
+                                                    </Query>
+                                                )
+                                        }
+
+
+                                        {
+                                            this.state.timeSearch !== null
+                                                ? (
+                                                    <Query
+                                                        query={ClassPeriodsTodayWithTime}
+                                                        variables={{
+                                                            academyTitle: this.state.academyTitle,
+                                                            daySearch: this.state.daySearch,
+                                                            timeSearch: this.state.timeSearch
+                                                        }}
+                                                        fetchPolicy={'network-only'}
+                                                    >
+                                                        {({loading, error, data}) => {
+                                                            if(loading){
+                                                                return(<View><Text>Loading</Text></View>)
+                                                            }
+                                                            if(error){
+                                                                console.log(error.message);
+                                                                return(<View><Text>`Error! ${error.message}`</Text></View>)
+                                                            }
+                                                            return(
+                                                                <View style={{alignItems: 'center', justifyContent:'center', marginTop: 15}}>
+                                                                    {data.classPeriodsTodayWithTime.map((obj, index) => (
+                                                                            <View key={index}>
+                                                                                {/** Class Period for CheckIn Status **/}
+                                                                                <Text
+                                                                                    style={{
+                                                                                        color: '#0c48c2',
+                                                                                        padding:5,
+                                                                                        fontWeight:'bold',
+                                                                                        textAlign:'center',
+                                                                                        fontStyle:'italic',
+                                                                                    }}
+                                                                                >
+                                                                                    {obj.title} -- {obj.day} at {obj.time}
+                                                                                </Text>
+                                                                                <View style={{alignItems: 'center', justifyContent:'center', marginTop: 15}}>
+                                                                                    <Ionicons
+                                                                                        ref={this.checkInButton}
+                                                                                        name={'ios-checkmark-circle'}
+                                                                                        color={'#0c48c2'}
+                                                                                        size={75}
+                                                                                        style={{
+                                                                                            paddingTop: 20,
+                                                                                            shadowOffset: {width: 1, height: 2,},
+                                                                                            shadowColor: 'black',
+                                                                                            shadowOpacity: 1.0,
+                                                                                            shadowRadius: 2,
+                                                                                        }}
+                                                                                        onPress={() => {
+                                                                                            this.setNativeProps(this.checkInButton.current, {style: {color: '#1cb684' }})
+                                                                                            this._createCheckin();
+                                                                                        } }
+
+                                                                                    />
+                                                                                    <Text>Check-In</Text>
+                                                                                </View>
+
+                                                                            </View>
+                                                                        )
+                                                                    )
+                                                                    }
+
+                                                                </View>
+                                                            )
+                                                        }}
+                                                    </Query>
+                                                )
+                                                : null
+                                        }
+
+                                    </View>
+
+                                </View>
+                            </TouchableWithoutFeedback>
+                        </ScrollView>
+                    </TouchableOpacity>
+                </Modal>
             </ScrollView>
         );
     }
 }
+SearchUsers.propTypes = {
+    classPeriodId: PropTypes.string,
+    academyId: PropTypes.string,
+    instructorId: PropTypes.string,
+};
+
+const SearchUsersGraphQL = compose(
+    graphql(CREATE_CHECKIN,{ name: "createCheckIn"}),
+    graphql(DELETE_CHECKIN,{ name: "deleteCheckIn"}),
+)(SearchUsers);
 
 
 class RosterScreen extends React.Component{
@@ -373,12 +1250,14 @@ class RosterScreen extends React.Component{
             <View style={{flex:1}}>
                 <MenuButton navigation={this.props.navigation}/>
                 <AddPerson />
+                <DeleteCheckIn/>
+                <FullRosterButton navigation={() => this.props.navigation.navigate('FullRoster')}/>
                 <ScrollView
                     contentContainer={{justifyContent:'flex-start', alignItems:'center'}}
                     style={{width:'100%', alignContent:'center', marginBottom:20}}
                 >
-                    <SearchUsers navigation={this.props.navigation}/>
-                    <RosterList navigation={this.props.navigation}/>
+                    <SearchUsersGraphQL navigation={this.props.navigation}/>
+                    <RosterListGraphQL navigation={this.props.navigation}/>
                 </ScrollView>
             </View>
         );
@@ -482,4 +1361,45 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#777777'
     },
-})
+    modalContainer: {
+        marginTop: 5,
+        height: '95%',
+        flexDirection: 'column',
+        justifyContent:'center',
+        alignItems:'center',
+        padding: 2,
+        marginBottom:30
+
+    },
+    ModalInsideView:{
+        alignItems: 'center',
+        backgroundColor : "#fff",
+        height: '91%' ,
+        width: '90%',
+        borderRadius:10,
+        borderWidth: 3,
+        borderColor: '#156DFA',
+        opacity: 0.95,
+        marginBottom: 30,
+    },
+});
+
+// <ListItem
+//     key={index}
+//     onSwipeFromLeft={() => console.log('swiped from left!')}
+//     onRightPress={() => console.log('pressed right!')}
+//     swipeWhat={
+//         <RosterRow
+//             key={index}
+//             memberId={obj.id}
+//             beltColor={obj.beltColor}
+//             stripeCount={obj.stripeCount}
+//             joinDate={obj.joinDate}
+//             firstName={obj.firstName}
+//             lastName={obj.lastName}
+//             navigation={this.props.navigation}
+//             checkedIn={false}
+//             classSessionTitle={}
+//         />
+//     }
+// />

@@ -12,6 +12,7 @@ import PersonScreen from '../screens/PersonScreen';
 
 
 import MenuDrawer from "../components/MenuDrawer";
+import FullRosterScreen from "../screens/FullRosterScreen";
 import EditProfileScreen from "../screens/EditProfileScreen";
 import EventScreen from "../screens/EventScreen";
 
@@ -56,6 +57,7 @@ const RosterStack = createStackNavigator({
     Roster: RosterScreen,
     Person: PersonScreen,
     EditProfile: EditProfileScreen,
+    FullRoster: FullRosterScreen
 });
 
 RosterStack.navigationOptions = {
@@ -81,7 +83,7 @@ export default  createDrawerNavigator(
         EventStack
     },
     {
-        initialRouteName: "ScheduleStack",
+        initialRouteName: "RosterStack",
         drawerWidth: 200,
         contentComponent: ({navigation}) => {
             return(<MenuDrawer navigation={navigation}/>)

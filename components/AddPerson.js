@@ -237,7 +237,7 @@ class AddPerson extends React.Component{
                <View style={{flexDirection:'row'}}>
                     <Ionicons
                         name={"md-person-add"}
-                        color={"#777777"}
+                        color={"#0c48c2"}
                         size={32}
                         onPress={() => this.toggleModal() }
                     />
@@ -386,7 +386,8 @@ class AddPerson extends React.Component{
                                     return <Text>Sorry, there was an error. Check that you are connected to the internet or cellular data?</Text>
                                 }
                                 return(
-                                    <View style={{flexDirection:'row', flexWrap: 'wrap', borderRadius:15, marginBottom: 20, marginTop: 20, padding:5, justifyContent:'space-evenly', backgroundColor: '#fff'}}>
+                                    <View style={{flexDirection:'row', flexWrap: 'wrap', borderRadius:15, marginBottom: 20, marginTop: 20, padding:5, justifyContent:'space-evenly',
+                                        backgroundColor: 'rgba(2500,250,250,0.1)'}}>
                                         {data.academies.map((obj, index) =>
                                             <View
                                                 accessibilityLabel={'Checkbox Option'} accessibilityHint={'Tap to select if interested'}
@@ -395,7 +396,7 @@ class AddPerson extends React.Component{
                                             >
                                                 <CheckBox
                                                     // ref={obj.id}
-                                                    containerStyle={{ borderRadius:15, borderWidth:1, borderColor:'#8c030b', backgroundColor: 'transparent'}}
+                                                    containerStyle={{ borderRadius:15, borderWidth:2, borderColor:'#000', backgroundColor: 'white'}}
                                                     textStyle={{color: '#000', fontSize:12}}
                                                     value={obj.id}
                                                     title={obj.title}
@@ -425,7 +426,7 @@ class AddPerson extends React.Component{
 
                                         <View style={{flexDirection:'column', borderWidth:1, borderColor: '#fff',  alignItems:'center', width: '45%', backgroundColor: '#fff', padding: 1}}>
 
-                                            <View style={{flexDirection:'row', justifyContent: 'center', backgroundColor: '#000', width: '100%', padding: 5}}>
+                                            <View style={{flexDirection:'row', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.8)', width: '100%', padding: 5}}>
                                                 <Text style={{color:'#fff', marginRight:5, marginBottom:10}}>Belt Rank:</Text>
                                                 <Text style = {{color:'#1cb684', marginRight:5, marginBottom:10}}>{this.state.beltColor}</Text>
                                             </View>

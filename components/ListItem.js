@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { GestureHandler } from 'expo';
 
+
 const { Swipeable } = GestureHandler;
 
 const styles = StyleSheet.create({
@@ -61,30 +62,30 @@ const LeftActions = (progress, dragX) => {
     return (
         <View style={styles.leftAction}>
             <Animated.Text style={[styles.actionText, { transform: [{ scale }] }]}>
-                Checked-In
+                Check-In
             </Animated.Text>
         </View>
     );
 };
 
-const RightActions = ({ progress, dragX, onPress }) => {
+const RightActions = ({ progress, dragX, onPress, objectButton }) => {
     const scale = dragX.interpolate({
         inputRange: [-80, 0],
         outputRange: [1, 0],
         extrapolate: 'clamp',
     });
     return (
-        <TouchableOpacity onPress={onPress}>
-            <View style={styles.rightAction}>
-                <Animated.Text style={[styles.actionText, { transform: [{ scale }] }]}>
-                    Remove
-                </Animated.Text>
-            </View>
-        </TouchableOpacity>
+       // <TouchableOpacity onPress={onPress}>
+            <Animated.View style={styles.rightAction}>
+
+                    {objectButton}
+
+            </Animated.View>
+        //</TouchableOpacity>
     );
 };
 
-const ListItem = ({ onSwipeFromLeft, onRightPress, swipeWhat }) => (
+const ListItem = ({ onSwipeFromLeft, onRightPress, swipeWhat, objectButtonRight }) => (
     <Swipeable
         friction={1}
         renderLeftActions={LeftActions}
@@ -93,7 +94,8 @@ const ListItem = ({ onSwipeFromLeft, onRightPress, swipeWhat }) => (
             <RightActions
                 progress={progress}
                 dragX={dragX}
-                onPress={onRightPress}
+                objectButton={objectButtonRight}
+                //onPress={onRightPress}
             />
         )}
     >

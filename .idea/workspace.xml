@@ -2,12 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="930bc2dc-4804-436d-8e4a-598a2cde0d3a" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/screens/TestBin.js" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/components/AddPerson.js" afterPath="$PROJECT_DIR$/components/AddPerson.js" />
-      <change beforePath="$PROJECT_DIR$/navigation/MainNavigator.js" afterPath="$PROJECT_DIR$/navigation/MainNavigator.js" />
+      <change beforePath="$PROJECT_DIR$/App.js" afterPath="$PROJECT_DIR$/App.js" />
+      <change beforePath="$PROJECT_DIR$/components/DeleteACheckIn.js" afterPath="$PROJECT_DIR$/components/DeleteACheckIn.js" />
+      <change beforePath="$PROJECT_DIR$/components/ListItem.js" afterPath="$PROJECT_DIR$/components/ListItem.js" />
       <change beforePath="$PROJECT_DIR$/screens/RosterScreen.js" afterPath="$PROJECT_DIR$/screens/RosterScreen.js" />
-      <change beforePath="$PROJECT_DIR$/screens/ScheduleScreen.js" afterPath="$PROJECT_DIR$/screens/ScheduleScreen.js" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -20,14 +18,14 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.4380531">
+    <splitter split-orientation="horizontal" split-proportion="0.45069745">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file leaf-file-name="RosterScreen.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/screens/RosterScreen.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="18780">
-                  <caret line="1252" column="32" lean-forward="false" selection-start-line="1252" selection-start-column="32" selection-end-line="1252" selection-end-column="32" />
+                <state relative-caret-position="643">
+                  <caret line="675" column="45" lean-forward="true" selection-start-line="675" selection-start-column="45" selection-end-line="675" selection-end-column="45" />
                   <folding>
                     <element signature="e#0#26#0" expanded="true" />
                   </folding>
@@ -55,15 +53,11 @@
               </provider>
             </entry>
           </file>
-        </leaf>
-      </split-first>
-      <split-second>
-        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file leaf-file-name="RosterScreen.js" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/screens/RosterScreen.js">
+          <file leaf-file-name="ListItem.js" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/components/ListItem.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="634">
-                  <caret line="254" column="8" lean-forward="false" selection-start-line="254" selection-start-column="8" selection-end-line="254" selection-end-column="8" />
+                <state relative-caret-position="324">
+                  <caret line="64" column="24" lean-forward="false" selection-start-line="64" selection-start-column="24" selection-end-line="64" selection-end-column="24" />
                   <folding>
                     <element signature="e#0#26#0" expanded="true" />
                   </folding>
@@ -71,11 +65,37 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="DeleteACheckIn.js" pinned="false" current-in-tab="true">
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+          <file leaf-file-name="RosterScreen.js" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/screens/RosterScreen.js">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="399">
+                  <caret line="856" column="34" lean-forward="false" selection-start-line="856" selection-start-column="34" selection-end-line="856" selection-end-column="34" />
+                  <folding>
+                    <element signature="e#0#26#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="EditProfileScreen.js" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/screens/EditProfileScreen.js">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="-2311">
+                  <caret line="47" column="6" lean-forward="true" selection-start-line="47" selection-start-column="6" selection-end-line="47" selection-end-column="6" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="DeleteACheckIn.js" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/components/DeleteACheckIn.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="368">
-                  <caret line="50" column="47" lean-forward="true" selection-start-line="50" selection-start-column="47" selection-end-line="50" selection-end-column="47" />
+                <state relative-caret-position="514">
+                  <caret line="250" column="40" lean-forward="false" selection-start-line="250" selection-start-column="40" selection-end-line="250" selection-end-column="40" />
                   <folding>
                     <element signature="e#0#26#0" expanded="true" />
                   </folding>
@@ -137,7 +157,6 @@
         <option value="$PROJECT_DIR$/constants/Belts.js" />
         <option value="$PROJECT_DIR$/constants/RosterData.js" />
         <option value="$PROJECT_DIR$/components/MenuButton.js" />
-        <option value="$PROJECT_DIR$/App.js" />
         <option value="$PROJECT_DIR$/screens/LinksScreen.js" />
         <option value="$PROJECT_DIR$/navigation/AppNavigator.js" />
         <option value="$PROJECT_DIR$/navigation/AuthNavigator.js" />
@@ -154,7 +173,6 @@
         <option value="$PROJECT_DIR$/components/Event.js" />
         <option value="$PROJECT_DIR$/screens/TestScreen.js" />
         <option value="$PROJECT_DIR$/components/MenuDrawer.js" />
-        <option value="$PROJECT_DIR$/components/ListItem.js" />
         <option value="$PROJECT_DIR$/screens/EditProfileScreen.js" />
         <option value="$PROJECT_DIR$/components/Profile.js" />
         <option value="$PROJECT_DIR$/screens/PersonScreen.js" />
@@ -166,8 +184,10 @@
         <option value="$PROJECT_DIR$/navigation/MainNavigator.js" />
         <option value="$PROJECT_DIR$/components/FullRosterButton.js" />
         <option value="$PROJECT_DIR$/screens/FullRosterScreen.js" />
-        <option value="$PROJECT_DIR$/screens/RosterScreen.js" />
+        <option value="$PROJECT_DIR$/components/ListItem.js" />
+        <option value="$PROJECT_DIR$/App.js" />
         <option value="$PROJECT_DIR$/components/DeleteACheckIn.js" />
+        <option value="$PROJECT_DIR$/screens/RosterScreen.js" />
       </list>
     </option>
   </component>
@@ -183,10 +203,10 @@
     <handled-path value="$PROJECT_DIR$/node_modules" />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="92" />
-    <option name="y" value="32" />
-    <option name="width" value="1603" />
-    <option name="height" value="808" />
+    <option name="x" value="1483" />
+    <option name="y" value="-12" />
+    <option name="width" value="1763" />
+    <option name="height" value="992" />
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1">
@@ -245,7 +265,7 @@
     <property name="HbShouldOpenHtmlAsHb" value="" />
     <property name="jsgraphql-schema-editor-notification" value="false" />
     <property name="com.intellij.lang.jsgraphql.ide.injection.JSGraphQLLanguageInjectionUtil.gql" value="apollo" />
-    <property name="SearchEverywhereHistoryKey" value="data&#9;FILE&#9;file:///Users/jeffreymolter/ReactNative/studio-checkIn/node_modules/react-native/RNTester/js/DatePickerAndroidExample.js" />
+    <property name="SearchEverywhereHistoryKey" value="{&#9;null&#9;null&#10;data&#9;FILE&#9;file:///Users/jeffreymolter/ReactNative/studio-checkIn/node_modules/react-native/RNTester/js/DatePickerAndroidExample.js" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -283,18 +303,18 @@
       <updated>1556722285303</updated>
       <workItem from="1556722286471" duration="56284000" />
       <workItem from="1557973196836" duration="194019000" />
-      <workItem from="1559762428335" duration="73526000" />
+      <workItem from="1559762428335" duration="101111000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="323829000" />
+    <option name="totallyTimeSpent" value="351414000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="92" y="32" width="1603" height="808" extended-state="0" />
+    <frame x="1483" y="-12" width="1763" height="992" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.18141593" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.18133718" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Docker" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
@@ -302,7 +322,7 @@
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24876674" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24867725" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -344,7 +364,7 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="21" />
+      <option name="time" value="24" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -580,14 +600,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/components/ListItem.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="990">
-          <caret line="74" column="7" lean-forward="false" selection-start-line="74" selection-start-column="7" selection-end-line="74" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/screens/TestBin.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="825">
@@ -637,14 +649,6 @@
           <folding>
             <element signature="e#0#26#0" expanded="false" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/App.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="26" lean-forward="true" selection-start-line="0" selection-start-column="26" selection-end-line="0" selection-end-column="26" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -740,9 +744,37 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/components/ListItem.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="324">
+          <caret line="64" column="24" lean-forward="false" selection-start-line="64" selection-start-column="24" selection-end-line="64" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/App.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="375">
+          <caret line="31" column="27" lean-forward="false" selection-start-line="31" selection-start-column="27" selection-end-line="31" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/components/DeleteACheckIn.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="514">
+          <caret line="250" column="40" lean-forward="false" selection-start-line="250" selection-start-column="40" selection-end-line="250" selection-end-column="40" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/screens/EditProfileScreen.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="175">
+        <state relative-caret-position="-2311">
           <caret line="47" column="6" lean-forward="true" selection-start-line="47" selection-start-column="6" selection-end-line="47" selection-end-column="6" />
           <folding />
         </state>
@@ -750,18 +782,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/screens/RosterScreen.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="634">
-          <caret line="254" column="8" lean-forward="false" selection-start-line="254" selection-start-column="8" selection-end-line="254" selection-end-column="8" />
-          <folding>
-            <element signature="e#0#26#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/components/DeleteACheckIn.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="368">
-          <caret line="50" column="47" lean-forward="true" selection-start-line="50" selection-start-column="47" selection-end-line="50" selection-end-column="47" />
+        <state relative-caret-position="643">
+          <caret line="675" column="45" lean-forward="true" selection-start-line="675" selection-start-column="45" selection-end-line="675" selection-end-column="45" />
           <folding>
             <element signature="e#0#26#0" expanded="true" />
           </folding>

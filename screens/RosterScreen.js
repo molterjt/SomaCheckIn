@@ -12,7 +12,7 @@ import Belt from '../components/Belt';
 import AddPerson from '../components/AddPerson';
 import FullRosterButton from '../components/FullRosterButton'
 import ListItem from '../components/ListItem';
-import DeleteCheckIn from '../components/DeleteACheckIn';
+import DeleteACheckIn from '../components/DeleteACheckIn';
 import Colors from '../constants/Colors';
 import {Query, graphql, compose} from 'react-apollo'
 import gql from 'graphql-tag';
@@ -36,7 +36,7 @@ const UserList = gql`
     }
 `;
 
-const checkInsByUserAndClassSession = gql`
+export const checkInsByUserAndClassSession = gql`
     query checkInsByUserAndClassSession($userId: ID, $classSessionTitle: String){
         checkInsByUserAndClassSession(userId: $userId, classSessionTitle: $classSessionTitle){
             checked
@@ -45,10 +45,12 @@ const checkInsByUserAndClassSession = gql`
               id
             }
             classSession{
+              id
               title
               date
-              academy{title}
+              academy{id, title}
               classPeriod{
+                id
                 day
                 time
                 title
@@ -140,8 +142,10 @@ const ClassPeriodsToday = gql`
             title
             date
             checkIns{
+                id
                 checked
                 user{
+                    id
                     firstName
                 }
             }
@@ -177,8 +181,10 @@ const ClassPeriodsTodayWithTime = gql`
             title
             date
             checkIns{
+                id
                 checked
                 user{
+                    id
                     firstName
                 }
             }
@@ -205,10 +211,10 @@ const UpsertClassSession = gql`
             id
             date
             createdAt
-            academy{title}
-            techniques{title}
-            instructor{user{firstName}}
-            checkIns{checked, user{id, firstName}}
+            academy{id, title}
+            techniques{id, title}
+            instructor{id, user{id, firstName}}
+            checkIns{id, checked, user{id, firstName}}
         }
     }
     
@@ -224,18 +230,19 @@ const CREATE_CHECKIN = gql`
       ){
         id
         checked
-        user{firstName}
+        user{id,firstName}
         classSession{title}
       }
     }
 `;
 
-const DELETE_CHECKIN = gql`
-    mutation deleteCheckIn($id: ID!){
-      deleteCheckIn(id: id){
-        id
-        classSession{title}
-      }
+const ADD_USER_TO_ACADEMY = gql`
+    mutation updateUser($userId: ID!, $academies: [ID]){
+        updateUser(userId: $userId, academies: $academies){
+            id
+            firstName
+            academies{id, title}
+        }
     }
 `;
 
@@ -247,7 +254,11 @@ class CheckInStatus extends React.Component{
     render(){
         return(
             <View>
-                <Query query={checkInsByUserAndClassSession} variables={{userId: this.props.userId, classSessionTitle: this.props.classSessionTitle}} fetchPolicy={'network-only'}>
+                <Query
+                    query={checkInsByUserAndClassSession}
+                    variables={{userId: this.props.userId, classSessionTitle: this.props.classSessionTitle}}
+                    fetchPolicy={'network-only'}
+                >
                     {({loading, error, data}) => {
                         if(loading){
                             return(
@@ -275,7 +286,11 @@ class CheckInStatus extends React.Component{
                                         color={"#1cb684"}
                                         size={32}
                                     />
-                                    : null
+                                    : <Ionicons
+                                        name={"md-checkmark-circle"}
+                                        color={"#b4b4b4"}
+                                        size={32}
+                                    />
                                 }
 
                             </View>
@@ -289,6 +304,7 @@ class CheckInStatus extends React.Component{
 CheckInStatus.propTypes = {
     userId: PropTypes.string,
     classSessionTitle: PropTypes.string,
+    checkColor: PropTypes.string,
 };
 
 
@@ -329,9 +345,6 @@ class RosterRow extends React.Component{
                         userId={this.props.memberId}
                         classSessionTitle={this.props.classSessionTitle}
                     />
-                    <Text style={styles.profileJoinDate}>
-                        {this.props.joinDate}
-                    </Text>
                 </View>
             </TouchableOpacity>
         )
@@ -397,7 +410,32 @@ class RosterList extends React.Component{
                 instructorId: this.state.instructorId,
                 academyId: this.state.academyId,
                 checkInValues: this.state.checkInValues,
-            }
+            },
+            refetchQueries: [
+
+                {
+                    query: checkInsByUserAndClassSession,
+                    variables:{
+                        userId: userId,
+                        classSessionTitle: this.state.todayClassSession
+                    }
+                },
+                {
+                    query: ClassPeriodsToday,
+                    variables: {
+                        academyTitle: this.state.academyTitle,
+                        daySearch: this.state.daySearch,
+                    }
+                },
+                {
+                    query: ClassPeriodsTodayWithTime,
+                    variables: {
+                        academyTitle: this.state.todayClassSession,
+                        daySearch: this.state.daySearch,
+                        timeSearch: this.state.timeSearch
+                    }
+                },
+            ]
         }).catch(error => {
             console.log('Failure of UpsertClassSession: ', error);
         });
@@ -586,46 +624,57 @@ class RosterList extends React.Component{
                                         return(<View><Text>`Error! ${error.message}`</Text></View>)
                                     }
                                     return(
-                                        <View style={{
-                                            flexDirection:'row',
-                                            justifyContent: 'space-around',
-                                            borderWidth:1,
-                                            borderColor: 'white',
-                                            padding:5,
-                                            // backgroundColor: 'rgba(0,0,0,0.8)'
-                                        }}>
-                                            {data.classPeriodsToday.map((obj, index) => (
-                                                <TouchableOpacity
-                                                    ref={component => this.timeButtons[index] = component}
-                                                    key={index}
-                                                    style={
-                                                        [styles.academySearchButton,
-                                                            {backgroundColor:"#0c48c2"},
-                                                        ]
-                                                    }
-                                                    onPress={() => {
-                                                        this._handleAClassPeriodButtonPress(obj);
-                                                        console.log('this.timeButtons[] ', this.timeButtons);
-                                                        console.log('length== ', this.timeButtons.length );
-                                                        if(this.timeButtons.length > 1){
-                                                            this.timeButtons.map((button, i) => {
-                                                                if(i === index){
-                                                                    this.setNativeProps(this.timeButtons[index], {backgroundColor: '#1cb684'});
+                                        <View>
+                                        {data.classPeriodsToday.length > 0
+                                            ? (
+                                                <View style={{
+                                                    flexDirection: 'row',
+                                                    justifyContent: 'space-around',
+                                                    borderWidth: 1,
+                                                    borderColor: 'black',
+                                                    padding: 8,
+                                                    // backgroundColor: 'rgba(0,0,0,0.8)'
+                                                }}>
+                                                    {data.classPeriodsToday.map((obj, index) => (
+                                                        <TouchableOpacity
+                                                            ref={component => this.timeButtons[index] = component}
+                                                            key={index}
+                                                            style={
+                                                                [styles.academySearchButton,
+                                                                    {backgroundColor: "#0c48c2"},
+                                                                ]
+                                                            }
+                                                            onPress={() => {
+                                                                this._handleAClassPeriodButtonPress(obj);
+                                                                console.log('this.timeButtons[] ', this.timeButtons);
+                                                                console.log('length== ', this.timeButtons.length);
+                                                                if (this.timeButtons.length > 1) {
+                                                                    this.timeButtons.map((button, i) => {
+                                                                        if (i === index) {
+                                                                            this.setNativeProps(this.timeButtons[index], {backgroundColor: '#1cb684'});
+                                                                        }
+                                                                        else {
+                                                                            this.setNativeProps(this.timeButtons[i], {backgroundColor: '#0c48c2'})
+                                                                        }
+                                                                    })
+                                                                } else {
+                                                                    this.setNativeProps(this.timeButtons[0], {backgroundColor: '#1cb684'})
                                                                 }
-                                                                else {
-                                                                    this.setNativeProps(this.timeButtons[i], {backgroundColor:'#0c48c2'})
-                                                                }
-                                                            })
-                                                        } else{
-                                                            this.setNativeProps(this.timeButtons[0], {backgroundColor: '#1cb684'} )
-                                                        }
-                                                        console.log("Ref ===> ",this.timeButtons[index].props.style[1].backgroundColor)
-                                                    }}
+                                                                console.log("Ref ===> ", this.timeButtons[index].props.style[1].backgroundColor)
+                                                            }}
 
-                                                >
-                                                    <Text style={ {color: "white"}}>{obj.time}</Text>
-                                                </TouchableOpacity>
-                                            ))}
+                                                        >
+                                                            <Text style={{color: "white"}}>{obj.time}</Text>
+                                                        </TouchableOpacity>
+                                                    ))}
+                                                </View>
+                                            )
+                                            : (
+                                                <Text style={{textAlign:'center', marginTop: 25}}>
+                                                No classes today for {this.state.academyTitle}
+                                                </Text>
+                                            )
+                                        }
                                         </View>
                                     )
                                 }}
@@ -671,10 +720,17 @@ class RosterList extends React.Component{
                                             {obj.academy.users.map((x, index) => (
                                                     <ListItem
                                                         key={index}
-                                                        onSwipeFromLeft={() =>
-                                                            this._submitUpsertClassSession(x.id)
+                                                        onSwipeFromLeft={() => {
+                                                            this._submitUpsertClassSession(x.id);
+                                                        }}
+                                                        objectButtonRight={
+                                                            <DeleteACheckIn
+                                                                userId={x.id}
+                                                                textColor={'white'}
+                                                                classSessionTitle={this.state.todayClassSession}
+                                                            />
                                                         }
-                                                        onRightPress={() => console.log('pressed right!')}
+
                                                         swipeWhat={
                                                             <RosterRow
                                                                 key={x.id}
@@ -774,7 +830,19 @@ class SearchUsers extends React.Component{
                 checked: true,
                 userId: this.state.userId,
                 classSessionTitle: this.state.todayClassSession,
-            }
+            },
+            refetchQueries: [
+
+                {
+                    query: checkInsByUserAndClassSession,
+                    variables:{
+                        userId: this.state.userId,
+                        classSessionTitle: this.state.todayClassSession
+                    }
+                },
+            ]
+        }).then(data => {
+            console.log('Success Create CheckIn: ', data)
         }).catch(error => {
             console.log('Failure of createCheckin: ', error);
         });
@@ -782,6 +850,31 @@ class SearchUsers extends React.Component{
             console.log('Success Result: ', result);
             this.setState({myCheckInResult: result});
         }
+    };
+
+    _addToAcademyRoster = async (userId, academyId) => {
+        const myAcademies = [];
+        myAcademies.push(academyId);
+        const result = await this.props.updateUser({
+            variables: {
+                userId: userId,
+                academies: myAcademies
+            },
+            refetchQueries: [
+                {
+                    query: ClassPeriodsTodayWithTime,
+                    variables:{
+                        academyTitle: this.state.academyTitle,
+                        daySearch: this.state.daySearch,
+                        timeSearch: this.state.timeSearch
+                    }
+                },
+            ]
+        }).then(data => {
+            console.log("Success of ADD_USER_TO_ACADEMY: ", data);
+        }).catch(err => {
+            console.log("ADDUSERTOACADEMY: ", err);
+        })
     };
 
     setNativeProps = (x, nativeProps) => {
@@ -829,20 +922,6 @@ class SearchUsers extends React.Component{
         console.log('state.timeSearch: ', this.state.timeSearch);
     }
 
-    _handleRemoveCheckIn = async (checkIn) => {
-        const result = await this.props.deleteCheckIn({
-            variables:{
-                id: checkIn
-            }
-        }).catch(error => {
-            console.log('Failure of deleteCheckIn: ', error);
-        });
-        if(result){
-            console.log('Success Result: ', result);
-            this.setState({myCheckInResult: result});
-        }
-
-    }
     _toggleCheckInModal = () => {
         this.setState({showCheckInModal: !this.state.showCheckInModal})
     };
@@ -876,7 +955,11 @@ class SearchUsers extends React.Component{
                     this.state.searchString === ''
                         ? null
                         : (
-                            <Query query={SearchUser} variables={{searchString: this.state.searchString}} fetchPolicy={'network-only'}>
+                            <Query
+                                query={SearchUser}
+                                variables={{searchString: this.state.searchString}}
+                                fetchPolicy={'network-only'}
+                            >
                                 {({loading, error, data}) => {
                                     if(loading){
                                         return(
@@ -901,10 +984,14 @@ class SearchUsers extends React.Component{
                                                         this._toggleCheckInModal();
 
                                                     }}
-                                                    onRightPress={() => {
-                                                        console.log('this.state.myCheckInResult: ', this.state.myCheckInResult.data.createCheckIn.id);
-                                                        this._handleRemoveCheckIn(this.state.myCheckInResult.data.createCheckIn.id);
-                                                    }}
+                                                    //onRightPress={() => {}}
+                                                    objectButtonRight={
+                                                        <DeleteACheckIn
+                                                            userId={obj.id}
+                                                            textColor={'white'}
+                                                            classSessionTitle={this.state.todayClassSession}
+                                                        />
+                                                    }
                                                     swipeWhat={
                                                         <RosterRow
                                                             key={index}
@@ -940,7 +1027,7 @@ class SearchUsers extends React.Component{
                     >
                         <ScrollView contentContainerStyle={styles.modalContainer} showsVerticalScrollIndicator={false}>
                             <TouchableWithoutFeedback>
-                                <View style={{backgroundColor: 'rgba(250,250,250,1)', height: '60%', width: '70%', borderWidth:1}}>
+                                <View style={{backgroundColor: 'rgba(250,250,250,1)', height: '60%', width: '85%', borderWidth:1}}>
                                     <View style={{
                                         backgroundColor:'#fff',flexDirection:"column",
                                         justifyContent: 'center', margin: 3,
@@ -1100,8 +1187,9 @@ class SearchUsers extends React.Component{
                                                                         borderWidth:1,
                                                                         borderColor:'#000',
                                                                         padding:8,
+                                                                        width: '100%'
                                                                     }}
-                                                                    contentContainer={{justifyContent:'center', alignItems:'center' }}
+                                                                    contentContainer={{justifyContent:'space-between', alignItems:'center' }}
                                                                 >
                                                                     {data.classPeriodsToday.map((obj, index) => (
                                                                         <TouchableOpacity
@@ -1109,7 +1197,7 @@ class SearchUsers extends React.Component{
                                                                             key={index}
                                                                             style={
                                                                                 [styles.academySearchButton,
-                                                                                    {backgroundColor: "#0c48c2", marginLeft: 15, marginRight:15, height: 40,  alignSelf:'center'},
+                                                                                    {backgroundColor: "#0c48c2", marginLeft: 15, marginRight:15, height: 40, },
                                                                                 ]
                                                                             }
                                                                             onPress={() => {
@@ -1195,6 +1283,7 @@ class SearchUsers extends React.Component{
                                                                                         onPress={() => {
                                                                                             this.setNativeProps(this.checkInButton.current, {style: {color: '#1cb684' }})
                                                                                             this._createCheckin();
+                                                                                            this._addToAcademyRoster(this.state.userId, this.state.academyId);
                                                                                         } }
 
                                                                                     />
@@ -1233,7 +1322,7 @@ SearchUsers.propTypes = {
 
 const SearchUsersGraphQL = compose(
     graphql(CREATE_CHECKIN,{ name: "createCheckIn"}),
-    graphql(DELETE_CHECKIN,{ name: "deleteCheckIn"}),
+    graphql(ADD_USER_TO_ACADEMY, {name: "updateUser"}),
 )(SearchUsers);
 
 
@@ -1250,7 +1339,6 @@ class RosterScreen extends React.Component{
             <View style={{flex:1}}>
                 <MenuButton navigation={this.props.navigation}/>
                 <AddPerson />
-                <DeleteCheckIn/>
                 <FullRosterButton navigation={() => this.props.navigation.navigate('FullRoster')}/>
                 <ScrollView
                     contentContainer={{justifyContent:'flex-start', alignItems:'center'}}

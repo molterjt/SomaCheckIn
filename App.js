@@ -22,9 +22,14 @@ const authLink = setContext(async (req, { headers }) => {
 });
 const link = authLink.concat(httpLink);
 
+const cache = new InMemoryCache({
+    dataIdFromObject: object => object.key || null
+});
+
 const client = new ApolloClient({
     link,
-    cache: new InMemoryCache()
+    cache: cache,
+    connectToDevTools: true
 });
 
 export default class App extends React.Component {

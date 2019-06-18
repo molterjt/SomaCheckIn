@@ -11,14 +11,16 @@ import {
     View,
     ImageBackground, Dimensions, TouchableWithoutFeedback, ScrollView,
 } from 'react-native';
+import PropTypes from 'prop-types';
 import { WebBrowser } from 'expo';
 import SomaJJLogo from '../assets/images/SomaJJ_Logo.png';
 import WhiateASRash from '../assets/images/WhiteASRash.png';
 import MenuButton from '../components/MenuButton';
 import ScheduleItem from '../components/ScheduleItem';
-import {Ionicons} from '@expo/vector-icons'
+import {Ionicons, MaterialCommunityIcons} from '@expo/vector-icons'
 import gql from 'graphql-tag';
 import {graphql, Mutation, Query} from 'react-apollo';
+import {checkInsByUserAndClassSession} from "./RosterScreen";
 
 const ME = gql`
     query{
@@ -33,40 +35,182 @@ const ME = gql`
             phone
             joinDate
             stripeCount
-            academies{title}
+            academies{
+                id
+                title
+            }
         }
     }
 `
 
 const CLASSPERIODS_TODAY = gql`
-    query{     
-      Dayton: classPeriodsToday(academyTitle:"Dayton", daySearch: "Wednesday"){
+    query($academyTitle: String, $daySearch: String){     
+      classPeriodsToday(academyTitle: $academyTitle, daySearch: $daySearch){
+        id
         time
         day
         title
-        academy{title}
-        classSessions{id, checkIns{checked}}
+        instructor{id}
+        academy{
+            id
+            title
+        }
+        classSessions{
+            id, 
+            title,
+            checkIns{
+                id
+                checked
+            }
+        }
+      }
+  }
+`;
+
+const CREATE_CHECKIN = gql`
+    mutation createCheckIn($userId: ID!, $classSessionTitle: String, $checked: Boolean ){
+      createCheckIn(
+        checked: $checked
+        userId: $userId
+        classSessionTitle: $classSessionTitle
+    
+      ){
         id
-      },
-      Oxford:classPeriodsToday(academyTitle:"Oxford",  daySearch: "Tuesday"){
-        time
-        day
-        title
-        academy{title}
-        classSessions{id, checkIns{checked}}
-        id
-      },
-      WestChester:classPeriodsToday(academyTitle:"West Chester",  daySearch: "Tuesday"){
-        time
-        day
-        title
-        academy{title}
-        classSessions{id, checkIns{checked}}
-        id
+        checked
+        user{id,firstName}
+        classSession{id,title}
       }
     }
+`;
+const UPSERT_CLASSCHECKIN = gql`
+    mutation (
+       
+        $classPeriodId: ID,
+        $instructorId:ID,
+        $academyId:ID
+        $checkInValues: [CheckInCreateWithoutClassSessionInput]
+    ){
+        updateOrCreateClassSession(
+            
+            classPeriodId: $classPeriodId
+            instructorId: $instructorId
+            academyId: $academyId
+            checkInValues: $checkInValues 
+        ){
+            id
+            date
+            createdAt
+            academy{id, title}
+            techniques{id, title}
+            instructor{id, user{id, firstName}}
+            checkIns{id, checked, user{id, firstName}}
+        }
+    }
     
-`
+`;
+
+
+class AcademyClassCheckInObject extends React.Component{
+    constructor(props){
+        super(props);
+        this.state = {
+            classSessionTitle: undefined,
+            classTimes: [],
+            classButtonPress: false,
+            selected: false
+        };
+        this.classPeriods = [];
+    }
+    _handleClassPeriodButtonPress = async (i) => {
+        //const today = new Date().toDateString();
+        //const titleSelector = await today.concat("__", classPeriodId);
+        this.classPeriods[i].selected = !this.classPeriods[i].selected;
+
+       // await this.setState({classSessionTitle: titleSelector,});
+        console.log('classTimes: ', this.classPeriods);
+        //console.log('classSessionTitle: ', this.state.classSessionTitle)
+
+    };
+
+    assignClassTimes = () => {
+        const newEntry = Object.assign({"selected": false});
+        this.classPeriods.push(newEntry);
+    };
+    _toggleSelection = () => { this.setState({ selected: !this.state.selected })}
+    render(){
+        return(
+            <View style={{marginTop: 40}}>
+
+
+                    <View style={{backgroundColor: 'transparent', padding: 10,}}>
+
+                        <View style={styles.rowContainer}>
+                            <TouchableOpacity
+                                ref={component => this.classPeriods[this.props.classIndex] = component}
+                                onPress={() => {
+                                 this._toggleSelection();
+                                }}
+                                disabled={this.props.checkInSuccess}
+                            >
+                                {this.state.selected
+                                    ? (
+                                        <MaterialCommunityIcons
+                                            name={"minus-circle"}
+                                            color={"#8c030b"}
+                                            size={43}
+                                        />
+                                    )
+                                    : (
+                                        <MaterialCommunityIcons
+                                            name={"plus-circle"}
+                                            color={"#1cb684"}
+                                            size={43}
+                                        />
+                                    )
+                                }
+                            </TouchableOpacity>
+                            <Text style={styles.classTitle}>{this.props.title}</Text>
+                            <Text style={styles.classTime}>{this.props.time}</Text>
+                        </View>
+                        {
+                            (this.state.selected  && this.props.checkInSuccess === false)
+                                ? (
+                                    <TouchableOpacity
+                                        style={{
+                                            marginTop: 20,
+                                            borderRadius: 30,
+                                            backgroundColor: '#8c030b',
+                                            alignItems:'center',
+                                            justifyContent: 'center',
+                                            borderWidth: 1,
+                                            borderColor: 'white',
+                                            width: '35%',
+                                            alignSelf: 'center',
+                                            padding: 10
+                                        }}
+                                        onPress={this.props.createCheckIn}
+                                    >
+                                        <Text style={{color:'white'}}>Check-In</Text>
+                                    </TouchableOpacity>
+                                )
+                                : null
+                        }
+                    </View>
+            </View>
+        );
+    }
+}
+AcademyClassCheckInObject.propTypes = {
+    createCheckIn: PropTypes.func,
+    academyTitle: PropTypes.string,
+    academyClassPeriodData: PropTypes.array,
+    classPeriodId: PropTypes.string,
+    title: PropTypes.string,
+    time: PropTypes.string,
+    checkInSuccess: PropTypes.bool,
+
+
+}
 
 
 class HomeScreen extends React.Component {
@@ -78,13 +222,25 @@ class HomeScreen extends React.Component {
     this.state={
       showModal: false,
       myEmail: '',
-      today: new Date().toISOString()
+      today: new Date().toISOString(),
+      classSessionTitle: undefined,
+      userId: undefined,
+      userFirstName: undefined,
+      classPeriodTitle: undefined,
+      classPeriodTime: undefined,
+      classPeriodAcademyTitle: undefined,
+      academyTitle: undefined,
+      checkInValues: undefined,
+      checkInSuccess: false,
+
+    selectedOptions: [
+        {"Location": "Dayton", "selected": false},
+        {"Location": "Oxford", "selected": false},
+        {"Location": "West Chester", "selected": false},
+    ],
     }
   }
-  compondentDidMount(){
-    const {me} = this.props.data;
-    this.setState({welcomeName: me.firstName})
-  }
+
   renderToday() {
     const today = new Date();
     const weekday = new Array(7);
@@ -98,6 +254,113 @@ class HomeScreen extends React.Component {
     return weekday[today.getDay()];
   }
   toggleModal = () => {this.setState({showModal: !this.state.showModal})};
+
+  _handleClassPeriodButtonPress = async (classsPeriodObjectId, classPeriodObjectTitle, classPeriodObjectTime, classPeriodObjectAcademyTitle ) => {
+      const today = new Date().toDateString();
+      const titleSelector = today.concat("__", classsPeriodObjectId);
+      if(this.state.classSessionTitle === undefined){
+          await this.setState({classSessionTitle: titleSelector});
+      } else{
+          this.setState({classSessionTitle: undefined});
+      }
+
+      await this.setState({classPeriodTitle: classPeriodObjectTitle});
+      await this.setState({classPeriodTime: classPeriodObjectTime});
+      await this.setState({classPeriodAcademyTitle: classPeriodObjectAcademyTitle});
+      console.log("state.userId: ", this.state.userId);
+      console.log("state.classSessionTitle: ", this.state.classSessionTitle);
+  };
+
+  _createCheckIn = async (classPeriodId) => {
+      const today = new Date().toDateString();
+      const titleSelector = await today.concat("__", classPeriodId);
+      const result = await this.props.mutate({
+        variables: {
+            checked: true,
+            userId: this.state.userId,
+            classSessionTitle: titleSelector,
+        },
+
+    }).then(data => {
+        console.log('CREATE_CHECKIN SUCCESS: ', data)
+    }).catch(error => {
+        console.log('CREATE_CHECKIN ERROR: ', error)
+    });
+    if(result){
+        console.log("CREATE_CHECKIN_RESULT: ", result)
+    }
+  };
+
+  _handleUpsertClassSessionCheckIn = async (classPeriodId, instructorId, academyId) => {
+      const today = new Date().toDateString();
+      const titleSelector = await today.concat("__", classPeriodId);
+      const memberArray = [];
+      const newPerson = Object.assign({"userId": this.state.userId, "checked":true});
+      console.log('newPerson: ', newPerson);
+      memberArray.push(newPerson);
+      this.setState({checkInValues: memberArray});
+
+      const result = await this.props.mutate({
+          variables:{
+              classPeriodId: classPeriodId,
+              instructorId: instructorId,
+              academyId: academyId,
+              checkInValues: this.state.checkInValues,
+          },
+          refetchQueries: [
+
+              {
+                  query: checkInsByUserAndClassSession,
+                  variables:{
+                      userId: this.state.userId,
+                      classSessionTitle: titleSelector
+                  }
+              },
+          ],
+      }).then(data => {
+          console.log('CREATE_CHECKIN SUCCESS: ', data);
+          this._toggleCheckInSuccess();
+      }).catch(error => {
+          console.log('CREATE_CHECKIN ERROR: ', error)
+      });
+      if(result){
+          console.log("CREATE_CHECKIN_RESULT: ", result);
+          this.setState({ checkInSuccess: true })
+      }
+  };
+
+    updateChoice(type) {
+        let newSelections = [...this.state.selectedOptions];
+        newSelections.filter(obj =>
+            obj.Location === type
+                ? obj.selected = true
+                : obj.selected = false
+        );
+        this.setState({selectedOptions: newSelections});
+    }
+    _handleAcademySearchButtonPress(searchString){
+        this.updateChoice(searchString);
+        this.setState({
+            academyTitle: searchString,
+            showUndoButton: true,
+            timeSearch: null,
+            selectedClassPeriod: null,
+        });
+        this.timeButtons = [];
+    }
+    clearSelections(){
+        let newSelections = [...this.state.selectedOptions];
+        newSelections.map(obj => obj.selected = false);
+        this.setState({selectedOptions: newSelections, academyTitle: undefined});
+
+    }
+    _toggleCheckInSuccess = async () => {
+        this.setState({ checkInSuccess: !this.state.checkInSuccess });
+    }
+
+
+
+
   render() {
     const {showModal} = this.state;
     return (
@@ -128,36 +391,46 @@ class HomeScreen extends React.Component {
                           return(<View><Text>`Error! ${error.message}`</Text></View>)
                       }
                       return(
+
                           <View style={{position:'absolute', top: 20}}>
-                              <Text style={{fontStyle:'italic', fontSize: 20}}
-                              >Welcome {data.me.firstName}!</Text>
+                              <Text style={{fontStyle:'italic', fontSize: 20}}>
+                                  Welcome {data.me.firstName}!
+                              </Text>
+                              <Ionicons
+                                  name={'ios-checkmark-circle'}
+                                  color={"#1cb684"}
+                                  size={100}
+                                  style={{
+                                      padding: 20,
+                                      position: 'relative',
+                                      bottom: -300,
+                                      shadowOffset: {width: 1, height: 2,},
+                                      shadowColor: 'black',
+                                      shadowOpacity: 1.0,
+                                      shadowRadius: 2,
+                                  }}
+                                  onPress={() => {
+                                      this.setState({
+                                          userId: data.me.id,
+                                          userFirstName: data.me.firstName
+                                      });
+                                      this.toggleModal();
+                                  } }
+                              />
+                              <Text style={{
+                                  position: 'relative',
+                                  bottom: -270,
+                                  color: "#1cb684",
+                                  marginTop: 5,
+                                  textAlign:'center'
+                              }}>Check-In</Text>
                           </View>
+
+
                       )
                   }}
               </Query>
-              <Ionicons
-                  name={'ios-checkmark-circle'}
-                  color={"#1cb684"}
-                  size={100}
-                  style={{
-                      padding: 20,
-                      position: 'absolute',
-                      bottom: -150,
-                      shadowOffset: {width: 1, height: 2,},
-                      shadowColor: 'black',
-                      shadowOpacity: 1.0,
-                      shadowRadius: 2,
-                  }}
-                  onPress={() => this.toggleModal() }
-                  //onPress={() => this.props.navigation.toggleDrawer() }
-              />
-              <Text style={{
-                  padding: 20,
-                  position: 'absolute',
-                  bottom: -160,
-                  color: "#1cb684",
-                  marginTop: 5
-              }}>Check-In</Text>
+
 
               <Modal
                   animationType="none"
@@ -184,6 +457,7 @@ class HomeScreen extends React.Component {
                           marginTop: 0,
                           backgroundColor:'rgba(0,0,0,0.8)' ,
                           paddingBottom: 50,
+                          width: '100%'
                       }}
                       contentContainerStyle={{
                           alignItems:'center',
@@ -207,110 +481,137 @@ class HomeScreen extends React.Component {
                               shadowRadius: 3,
                           }}
                       />
-                      <Query query={CLASSPERIODS_TODAY} variables={{daySearch: "Tuesday"}} fetchPolicy={'network-only'}>
-                              {({loading, error, data}) => {
-                                  if(loading){
+                      {
+                          this.state.academyTitle === undefined
+                              ? (
+                                  <View
+                                      style={{
+                                      flexDirection:'row',
+                                      justifyContent: 'space-around',
+                                      borderWidth:1,
+                                      borderColor:'white',
+                                      padding:5,
+                                      width: '96%',
+                                      alignItems:'center',
+                                  }}
+                                  >
+                                      <TouchableOpacity
+                                          style={styles.academyCheckInButton}
+                                          onPress={() => { this._handleAcademySearchButtonPress('Dayton') }}
+                                      >
+                                          <Text style={styles.academyTitle}>Dayton</Text>
+                                      </TouchableOpacity>
+                                      <TouchableOpacity
+                                          style={styles.academyCheckInButton}
+                                          onPress={() => {
+                                              this._handleAcademySearchButtonPress('Oxford');
+                                          }}
+
+                                      >
+                                          <Text style={styles.academyTitle}>Oxford</Text>
+                                      </TouchableOpacity>
+                                      <TouchableOpacity
+                                          style={styles.academyCheckInButton}
+                                          onPress={() => {
+                                              this._handleAcademySearchButtonPress('West Chester');
+                                          }}
+
+                                      >
+                                          <Text style={styles.academyTitle}>West Chester</Text>
+
+                                      </TouchableOpacity>
+                                  </View>
+                              )
+                              : null
+                      }
+
+                      {
+                          this.state.academyTitle
+                          ? (
+                              <Query
+                                  query={CLASSPERIODS_TODAY}
+                                  variables={{academyTitle: this.state.academyTitle}}
+                                  fetchPolicy={'network-only'}>
+                                  {({loading, error, data}) => {
+                                      if(loading){
+                                          return(
+                                              <View><Text>Loading</Text></View>
+                                          )
+                                      }
+                                      if(error){
+                                          console.log(error.message);
+                                          return(<View><Text>`Error! ${error.message}`</Text></View>)
+                                      }
                                       return(
-                                          <View>
-                                              <Text>Loading</Text>
+                                          <View
+                                              style={{ backgroundColor: 'transparent', justifyContent: 'space-evenly',}}
+                                          >
+                                              <Text style={styles.dayHeader}>
+                                                  Classes for {this.renderToday()}
+                                              </Text>
+                                              <View style={ [styles.academyTitleContainer, {marginTop: 20}]}>
+                                                  <Text style={styles.academyTitle}>
+                                                      {this.state.academyTitle}
+                                                  </Text>
+                                              </View>
+                                              {data.classPeriodsToday.length > 0
+                                                  ?
+                                                  <View>
+
+                                                      {data.classPeriodsToday.map((obj, index) => (
+                                                      <AcademyClassCheckInObject
+                                                          key={index}
+                                                          time={obj.time}
+                                                          title={obj.title}
+                                                          checkInSuccess={this.state.checkInSuccess}
+                                                          createCheckIn={() => {
+                                                              this._handleUpsertClassSessionCheckIn(
+                                                                  obj.id,
+                                                                  obj.instructor.id,
+                                                                  obj.academy.id,
+                                                              )
+                                                          }}
+
+                                                      />
+                                                  ))
+
+                                                  }
+                                                  </View>
+                                                  : <Text style={styles.academyTitle}>No classes available today</Text>
+                                              }
+                                              {
+                                                  this.state.checkInSuccess
+                                                      ? (
+                                                          <View style={{alignSelf:'center', marginTop: 30, marginBottom: 30}}>
+                                                              <MaterialCommunityIcons
+                                                                  style={{alignSelf:'center'}}
+                                                                  name={"thumb-up-outline"}
+                                                                  color={"#1cb684"}
+                                                                  size={60}
+                                                              />
+                                                              <Text style={{color: '#fff', textAlign:'center', marginTop: 10}}>
+                                                                  You have successfully checked-in!
+                                                              </Text>
+                                                              <Text style={{color: '#fff', textAlign:'center', marginTop: 10}}>
+                                                                  Thank you, {this.state.userFirstName}!
+                                                              </Text>
+                                                          </View>
+                                                      )
+                                                      : null
+                                              }
+                                              <Button
+                                                style={{padding: 50, marginTop: 30 }}
+                                                title={'Clear'}
+                                                onPress={() => this.clearSelections()}
+                                              />
                                           </View>
                                       )
-                                  }
-                                  if(error){
-                                      console.log(error.message);
-                                      return(<View><Text>`Error! ${error.message}`</Text></View>)
-                                  }
-                                  return(
-                                      <View
-                                          style={{ backgroundColor: 'transparent', justifyContent: 'space-evenly',}}
-                                      >
-                                          <Text style={styles.dayHeader}>
-                                              Classes for {this.renderToday()}
-                                          </Text>
-                                          {data.Dayton.length > 0
-                                              ? (
-                                                  <View style={{marginTop: 40}}>
-                                                      <View style={styles.academyTitleContainer}>
-                                                          <Text style={styles.academyTitle}>
-                                                              {data.Dayton[0].academy.title}
-                                                          </Text>
-                                                      </View>
+                                  }}
+                              </Query>
+                          )
+                          : null
+                      }
 
-                                                      {data.Dayton.map((obj, index) => (
-                                                          <View key={index} style={{backgroundColor: 'transparent', padding: 10,}}>
-                                                              <View style={styles.rowContainer}>
-                                                                  <Ionicons
-                                                                      name={"md-add-circle"}
-                                                                      color={"#1cb684"}
-                                                                      size={45}
-                                                                      onPress={() => this.toggleModal() }
-                                                                  />
-                                                                  <Text style={styles.classTitle}>{obj.title}</Text>
-                                                                  <Text style={styles.classTime}>{obj.time}</Text>
-                                                              </View>
-                                                          </View>
-
-                                                      ))}
-                                                  </View>
-                                              )
-                                              : null
-                                          }
-                                          {data.WestChester.length > 0
-                                              ? (
-                                                  <View style={{marginTop: 40}}>
-                                                      <View style={styles.academyTitleContainer}>
-                                                          <Text style={styles.academyTitle}>
-                                                              {data.WestChester[0].academy.title}
-                                                          </Text>
-                                                      </View>
-                                                      {data.WestChester.map((obj, index) => (
-                                                          <View key={index} style={{backgroundColor: 'transparent', padding: 10,}}>
-                                                              <View key={index} style={styles.rowContainer}>
-                                                                  <Ionicons
-                                                                      name={"md-add-circle"}
-                                                                      color={"#1cb684"}
-                                                                      size={45}
-                                                                      onPress={() => this.toggleModal() }
-                                                                  />
-                                                                  <Text style={styles.classTitle}>{obj.title}</Text>
-                                                                  <Text style={styles.classTime}>{obj.time}</Text>
-                                                              </View>
-                                                          </View>
-                                                      ))}
-                                                  </View>
-                                              )
-                                              : null
-                                          }
-                                          {data.Oxford.length > 0
-                                              ? (
-                                                  <View style={{marginTop: 40}}>
-                                                      <View style={styles.academyTitleContainer}>
-                                                          <Text style={styles.academyTitle}>
-                                                              {data.Oxford[0].academy.title}
-                                                          </Text>
-                                                      </View>
-                                                      {data.Oxford.map((obj, index) => (
-                                                          <View key={index} style={{backgroundColor: 'transparent', padding: 10,}}>
-                                                              <View key={index} style={styles.rowContainer}>
-                                                                  <Ionicons
-                                                                      name={"md-add-circle"}
-                                                                      color={"#1cb684"}
-                                                                      size={45}
-                                                                      onPress={() => this.toggleModal() }
-                                                                  />
-                                                                  <Text style={styles.classTitle}>{obj.title}</Text>
-                                                                  <Text style={styles.classTime}>{obj.time}</Text>
-                                                              </View>
-                                                          </View>
-                                                      ))}
-                                                  </View>
-                                              )
-                                              : null
-                                          }
-                                  </View>
-                                  )
-                              }}
-                      </Query>
                   <View style={{height: 50}}/>
                   </ScrollView>
               </Modal>
@@ -318,42 +619,9 @@ class HomeScreen extends React.Component {
       </View>
     );
   }
-
-  _maybeRenderDevelopmentModeWarning() {
-    if (__DEV__) {
-      const learnMoreButton = (
-        <Text onPress={this._handleLearnMorePress} style={styles.helpLinkText}>
-          Learn more
-        </Text>
-      );
-
-      return (
-        <Text style={styles.developmentModeText}>
-          Development mode is enabled, your app will be slower but you can use useful development
-          tools. {learnMoreButton}
-        </Text>
-      );
-    } else {
-      return (
-        <Text style={styles.developmentModeText}>
-          You are not in development mode, your app will run at full speed.
-        </Text>
-      );
-    }
-  }
-
-  _handleLearnMorePress = () => {
-    WebBrowser.openBrowserAsync('https://docs.expo.io/versions/latest/guides/development-mode');
-  };
-
-  _handleHelpPress = () => {
-    WebBrowser.openBrowserAsync(
-      'https://docs.expo.io/versions/latest/guides/up-and-running.html#can-t-see-your-changes'
-    );
-  };
 }
 
-export default (HomeScreen);
+export default graphql(UPSERT_CLASSCHECKIN)(HomeScreen);
 
 const styles = StyleSheet.create({
     rowContainer: {
@@ -398,6 +666,24 @@ const styles = StyleSheet.create({
         shadowOpacity: 1,
         shadowRadius: 5,
     },
+    academyCheckInButton: {
+        borderWidth: 1,
+        borderRadius:10,
+        borderColor: '#dadada',
+        justifyContent:'space-around',
+        alignItems: 'center',
+        alignContent:'center',
+        alignSelf:'center',
+        textAlign:'center',
+        padding: 10,
+        marginTop:5,
+        marginBottom: 5,
+        backgroundColor:'rgba(0,0,0,0.2)',
+        shadowOffset: {width: 0, height: 1,},
+        shadowColor: '#0c48c2',
+        shadowOpacity: 1,
+        shadowRadius: 1,
+    },
     dayHeader:{
         textAlign:'center',
         alignSelf:'center',
@@ -418,6 +704,19 @@ const styles = StyleSheet.create({
     classTime:{
         color:'#494949',
         paddingRight: 10
+    },
+    academySearchButton: {
+        //backgroundColor: '#8c030b',
+        borderWidth:1,
+        padding: 10,
+        shadowOffset: {width: 1, height: 2,},
+        shadowColor: 'black',
+        shadowOpacity: 1.0,
+        shadowRadius: 2,
+        borderRadius: 10,
+    },
+    academySearchText: {
+        color: '#fff'
     },
 
   container: {

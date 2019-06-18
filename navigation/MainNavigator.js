@@ -56,6 +56,7 @@ ScheduleStack.navigationOptions = {
 const RosterStack = createStackNavigator({
     Roster: RosterScreen,
     Person: PersonScreen,
+    CheckInHistory: CheckInHistoryScreen,
     EditProfile: EditProfileScreen,
     FullRoster: FullRosterScreen
 });
@@ -83,7 +84,7 @@ export default  createDrawerNavigator(
         EventStack
     },
     {
-        initialRouteName: "RosterStack",
+        initialRouteName: "HomeStack",
         drawerWidth: 200,
         contentComponent: ({navigation}) => {
             return(<MenuDrawer navigation={navigation}/>)

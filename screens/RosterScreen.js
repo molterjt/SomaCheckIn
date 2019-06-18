@@ -1027,11 +1027,17 @@ class SearchUsers extends React.Component{
                     >
                         <ScrollView contentContainerStyle={styles.modalContainer} showsVerticalScrollIndicator={false}>
                             <TouchableWithoutFeedback>
-                                <View style={{backgroundColor: 'rgba(250,250,250,1)', height: '60%', width: '85%', borderWidth:1}}>
+                                <View style={{
+                                        backgroundColor: 'rgba(250,250,250,1)',
+                                        height: '60%',
+                                        width: '85%',
+                                        borderWidth:1,
+                                    }}
+                                >
                                     <View style={{
                                         backgroundColor:'#fff',flexDirection:"column",
-                                        justifyContent: 'center', margin: 3,
-                                         width: 'auto', padding: 5
+                                        justifyContent: 'space-around', margin: 3,
+                                         width: 'auto', padding: 5,
                                     }}
                                     >
                                         <Button
@@ -1071,29 +1077,26 @@ class SearchUsers extends React.Component{
                                             this.state.academyTitle === null && this.state.timeSearch === null
                                                 ? (
                                                     <ScrollView
-                                                        horizontal={true}
-                                                        showsHorizontalScrollIndicator={true}
+                                                        horizontal={false}
+                                                        showsHorizontalScrollIndicator={false}
                                                         overScrollMode={'always'}
                                                         centerContent={false}
-                                                        contentOffset={{x:40, y:0}}
+                                                        //contentOffset={{x:40, y:0}}
                                                         snapToAlignment={'center'}
                                                         bounce={true}
                                                         style={{
-                                                            flexDirection:'row',
+                                                            flexDirection:'column',
                                                             borderWidth:1,
                                                             borderColor:'white',
                                                             padding:5,
                                                             backgroundColor: 'rgba(0,0,0,0.8)',
+                                                            height: '90%'
 
                                                         }}
                                                         contentContainer={{justifyContent:'center', alignItems:'center' }}
                                                     >
                                                         <TouchableOpacity
-                                                            style={
-                                                                [styles.academySearchButton,
-                                                                    {backgroundColor: "#0c48c2", marginLeft: 15, marginRight:15, height: 40,  alignSelf:'center'},
-                                                                ]
-                                                            }
+                                                            style={styles.academyCheckInButton}
                                                             onPress={() => {
                                                                 this._handleAcademySearchButtonPress('Dayton');
                                                             }}
@@ -1102,11 +1105,7 @@ class SearchUsers extends React.Component{
                                                             <Text style={ {color: "white"}}>Dayton</Text>
                                                         </TouchableOpacity>
                                                         <TouchableOpacity
-                                                            style={
-                                                                [styles.academySearchButton,
-                                                                    {backgroundColor: "#0c48c2", marginLeft: 15, marginRight:15, height: 40,  alignSelf:'center'},
-                                                                ]
-                                                            }
+                                                            style={styles.academyCheckInButton}
                                                             onPress={() => {
                                                                 this._handleAcademySearchButtonPress('Oxford');
                                                             }}
@@ -1115,11 +1114,7 @@ class SearchUsers extends React.Component{
                                                             <Text style={ {color: "white"}}>Oxford</Text>
                                                         </TouchableOpacity>
                                                         <TouchableOpacity
-                                                            style={
-                                                                [styles.academySearchButton,
-                                                                    {backgroundColor: "#0c48c2", marginLeft: 15, marginRight:15, height: 40, alignSelf:'center'},
-                                                                ]
-                                                            }
+                                                            style={styles.academyCheckInButton}
                                                             onPress={() => {
                                                                 this._handleAcademySearchButtonPress('West Chester');
                                                             }}
@@ -1469,6 +1464,24 @@ const styles = StyleSheet.create({
         borderColor: '#156DFA',
         opacity: 0.95,
         marginBottom: 30,
+    },
+    academyCheckInButton: {
+        borderWidth: 1,
+        borderRadius:10,
+        borderColor: '#dadada',
+        justifyContent:'space-around',
+        alignItems: 'center',
+        alignContent:'center',
+        alignSelf:'center',
+        textAlign:'center',
+        padding: 10,
+        marginTop:20,
+        marginBottom: 20,
+        backgroundColor:'rgba(0,0,0,0.2)',
+        shadowOffset: {width: 0, height: 1,},
+        shadowColor: '#0c48c2',
+        shadowOpacity: 1,
+        shadowRadius: 1,
     },
 });
 

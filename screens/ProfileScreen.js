@@ -20,7 +20,25 @@ const ME = gql`
             phone
             joinDate
             stripeCount
-            academies{title}
+            academies{id, title}
+            checkIns{
+              id
+              classSession{
+                id
+                date
+                title
+                techniques{
+                    title
+                    tags{id, name}
+                }
+                classPeriod{
+                  day
+                  time
+                  title
+                  id
+                }
+             }
+           }
         }
     }
     

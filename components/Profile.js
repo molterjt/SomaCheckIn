@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {StyleSheet, View, Text, AsyncStorage, Button, Image, Linking, Platform, TouchableOpacity} from 'react-native';
+import * as SMS from 'expo-sms';
 import Belt from "./Belt";
 import Colors from '../constants/Colors';
 import {withNavigation} from 'react-navigation';
@@ -66,6 +67,29 @@ class Profile extends React.Component{
             }
         }).catch(err => console.warn('An unexpected error happened', err));
     };
+
+    sendTextMessage = async (mobileNumber) => {
+        // const isAvailable = await SMS.isAvailableAsync()
+        // if (isAvailable) {
+        //     console.log('SMS is Available : => ');
+        //     try{
+        //         const {result} = SMS.sendSMSAsync(['15133253441'], 'My sample HelloWorld message' );
+        //         console.log('RESULT: ', result);
+        //     } catch (err) {
+        //         console.log('Did not work');
+        //     }
+        //
+        //
+        //
+        // } else {
+        //     console.log(' misfortune... there is no SMS available on this device');
+        // }
+        Linking.openURL(`sms:${mobileNumber}`);
+    };
+
+    sendEmailMessage = async (address) => {
+        Linking.openURL(`mailto:${address}&subject=Soma Jiu-Jitsu Academy&body=null`)
+    };
     render(){
         return(
             <View style={styles.profileCard}>
@@ -130,9 +154,9 @@ class Profile extends React.Component{
                                 color={"#1cb684"}
                                 size={28}
                                 style={{
-                                    padding: 0 ,
+                                    padding: 0,
                                 }}
-                                onPress={() => this.props.navigation.toggleDrawer() }
+                                onPress={ () => this.sendTextMessage(this.props.phone) }
                             />
                             <Text style={styles.contactInfo}>{this.props.phone}</Text>
                         </View>
@@ -141,22 +165,24 @@ class Profile extends React.Component{
                                 name={'ios-mail'}
                                 color={"#1cb684"}
                                 size={28}
+                                onPress={ () => this.sendEmailMessage(this.props.email) }
                             />
                             <Text style={styles.contactInfo}>{this.props.email}</Text>
                         </View>
-                        {this.props.dob
-                            ?   (
-                                <View style={styles.infoDetailContainer}>
-                                    <MaterialIcons
-                                        name={'cake'}
-                                        color={"#1cb684"}
-                                        size={28}
-                                    />
-                                    <Text style={styles.contactInfo}>{this.props.dob}</Text>
-                                </View>
-                            )
-                            :  null
-                        }
+
+                        <View style={styles.infoDetailContainer}>
+                            <MaterialIcons
+                                name={'cake'}
+                                color={"#1cb684"}
+                                size={28}
+                            />
+                            {this.props.dob
+                                ? <Text style={styles.contactInfo}>{this.props.dob}</Text>
+                                : null
+
+                            }
+                        </View>
+
                         <View style={styles.infoDetailContainer}>
                             <MaterialIcons
                                 name={'school'}
@@ -168,9 +194,11 @@ class Profile extends React.Component{
                             ))}
                         </View>
                         <View style={styles.infoDetailContainer}>
-                            <Text style={styles.lastCheckInText}>
-                                Last Check-In:
-                            </Text>
+                            <MaterialIcons
+                                name={'check-box'}
+                                color={"#1cb684"}
+                                size={28}
+                            />
                             <Text style={[styles.lastCheckInText, {color: 'white', marginLeft:5}]}>
                                 {this.props.lastCheckIn}
                             </Text>
@@ -214,7 +242,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         width: '100%',
         height: '80%',
-        backgroundColor: '#7e8082',
+        backgroundColor: '#000',
         borderWidth: 1,
         marginTop: 80,
         margin: 15,
@@ -228,7 +256,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
-        backgroundColor: 'transparent',
+        backgroundColor: 'rgba(0,0,0,0.2)',
         borderRadius: 10,
     },
     infoSectionTop: {
@@ -241,7 +269,7 @@ const styles = StyleSheet.create({
         borderColor: 'black',
         borderWidth: 1,
         borderRadius: 5,
-        backgroundColor: '#fff',
+        backgroundColor: 'rgba(250,250,250,0.9)',
 
     },
     infoSectionBottom:{
@@ -261,10 +289,10 @@ const styles = StyleSheet.create({
     infoDetailContainer:{
         flexDirection:'row',
         justifyContent:'flex-start',
-        marginTop:4,
+        marginTop:7,
         borderBottomWidth:1,
         borderColor: '#cbd5e0',
-        width: '80%'
+        width: '90%'
     },
     attendanceButton:{
         backgroundColor: '#1cb684',

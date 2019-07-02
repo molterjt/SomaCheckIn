@@ -29,8 +29,20 @@ const FIND_USER = gql`
       joinDate
       stripeCount
       academies{title}
+      checkIns{
+        id
+        classSession{
+          id
+          date
+          title
+          academy{id, title}
+        }
       }
-      me{id, position}
+    }
+    me{
+      id, 
+      position
+   }
 }
     
 `;
@@ -120,7 +132,9 @@ class PersonScreen extends React.Component{
                             beltColor={user.beltColor}
                             stripeCount={user.stripeCount}
                             academies={user.academies}
-                            lastCheckIn={'Today'}
+
+                            lastCheckIn={user.checkIns.length > 0 ? (user.checkIns[0].classSession.date + " - " + user.checkIns[0].classSession.academy.title) : `No CheckIns Yet`}
+
                             showEditButton={(data.me.position === 'ADMIN')}
                             showDeleteButton={(data.me.position === 'ADMIN')}
                             deleteUserAccount={() => this.deleteAccount(user.id)}

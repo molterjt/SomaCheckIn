@@ -76,6 +76,7 @@ export default class MenuDrawer extends React.Component{
                                 {this.navLink('Schedule', 'Schedule')}
                                 {data.me.position === 'ADMIN' ? this.navLink('Roster', 'Roster') : null}
                                 { this.navLink('Events', 'Events')}
+                                {data.me.position === 'ADMIN' ? this.navLink('ClassManagement', 'Class Sessions') : null}
                             </View>
                         )
                     }}

@@ -27,15 +27,13 @@ const ME = gql`
                 id
                 date
                 title
-                techniques{
-                    title
-                    tags{id, name}
-                }
                 classPeriod{
-                  day
-                  time
-                  title
                   id
+                  time
+                }
+                academy{
+                  id
+                  title
                 }
              }
            }
@@ -123,7 +121,7 @@ class ProfileScreen extends React.Component {
                                beltColor={data.me.beltColor}
                                stripeCount={data.me.stripeCount}
                                academies={data.me.academies}
-                               lastCheckIn={'Today'}
+                               lastCheckIn={data.me.checkIns.length > 0 ? (data.me.checkIns[0].classSession.date + " - " + data.me.checkIns[0].classSession.academy.title) : `No CheckIns Yet`}
                                showEditButton={true}
                            />
                     )

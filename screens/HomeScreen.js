@@ -155,14 +155,14 @@ class AcademyClassCheckInObject extends React.Component{
                                 {this.state.selected
                                     ? (
                                         <MaterialCommunityIcons
-                                            name={"minus-circle"}
+                                            name={"checkbox-marked-circle"}
                                             color={"#8c030b"}
                                             size={43}
                                         />
                                     )
                                     : (
                                         <MaterialCommunityIcons
-                                            name={"plus-circle"}
+                                            name={"checkbox-blank-circle-outline"}
                                             color={"#1cb684"}
                                             size={43}
                                         />

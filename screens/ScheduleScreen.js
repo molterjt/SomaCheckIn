@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {
     StyleSheet, Text, View, ActivityIndicator, Platform, Dimensions,
-    TouchableOpacity, FlatList, RefreshControl, Button, ScrollView,
+    TouchableOpacity, FlatList, RefreshControl, Button, ScrollView, TouchableWithoutFeedback, Modal, Image,
 } from 'react-native';
 import gql from 'graphql-tag';
 import {graphql, Query}  from 'react-apollo';
@@ -41,6 +41,17 @@ const CLASS_PERIODS = gql`
             day
             title
             academy{title}
+            instructor{ 
+                id
+                bio
+                lineage
+                photo 
+                user{
+                    id
+                    firstName
+                    phone
+                }
+            }
             classSessions{id, checkIns{checked}}
             id
         }
@@ -69,6 +80,14 @@ class ScheduleScreen extends React.Component {
             items: [],
             loading: true,
             refreshing: false,
+            showInstructorModal: false,
+            modalClassTitle: undefined,
+            modalClassAcademy: undefined,
+            modalClassInstructor: undefined,
+            instructorBio: undefined,
+            instructorLineage: undefined,
+            instructorPhoto: undefined,
+            instructorPhone: undefined,
             academyTitle: null,
             daySearch: null,
             showClearButton: false,
@@ -89,7 +108,21 @@ class ScheduleScreen extends React.Component {
 
         };
     };
+    _toggleInstructorModal(){
+        this.setState({showInstructorModal: !this.state.showInstructorModal})
+    }
+    _setClassAndInstructorModalDetails(title, inst, bio, lineage, pic, academy, phone){
+        this.setState({
+            modalClassTitle: title,
+            modalClassAcademy: academy,
+            modalClassInstructor: inst,
+            instructorBio: bio,
+            instructorLineage: lineage,
+            instructorPhoto: pic,
+            instructorPhone: phone,
 
+        })
+    }
     clearAcademySelections(){
         let newSelections = [...this.state.selectedOptions];
         newSelections.map(obj => obj.selected = false);
@@ -148,7 +181,10 @@ class ScheduleScreen extends React.Component {
         return(
             <View>
                 <TouchableOpacity
-                    onPress={() => console.log("Create New Check-In")}
+                    onPress={() => {
+                        this._toggleInstructorModal();
+                        this._setClassAndInstructorModalDetails(item.title, item.instructor.user.firstName, item.instructor.bio, item.instructor.lineage, item.instructor.photo, item.academy.title, item.instructor.user.phone)
+                    }}
                     key={this._keyExtractor}
                 >
                     <ScheduleItem
@@ -156,6 +192,7 @@ class ScheduleScreen extends React.Component {
                         title={item.title}
                         time = {item.time}
                         day={item.day}
+                        instructorName={item.instructor.user.firstName}
                     />
                 </TouchableOpacity>
             </View>
@@ -166,7 +203,11 @@ class ScheduleScreen extends React.Component {
         return(
             <View>
                 <TouchableOpacity
-                    onPress={() => console.log("Create New Check-In")}
+                    onPress={() => {
+                        this._toggleInstructorModal();
+                        this._setClassAndInstructorModalDetails(item.title, item.instructor.user.firstName, item.instructor.bio, item.instructor.lineage, item.instructor.photo, item.academy.title, item.instructor.user.phone)
+
+                    }}
                     key={this._keyExtractor}
                 >
                     <ScheduleItem
@@ -175,6 +216,7 @@ class ScheduleScreen extends React.Component {
                         time = {item.time}
                         day={item.day}
                         academy={item.academy.title}
+                        instructorName={item.instructor.user.firstName}
                     />
                 </TouchableOpacity>
             </View>
@@ -249,7 +291,7 @@ class ScheduleScreen extends React.Component {
                 <TouchableOpacity
                     style={
                         [styles.daySearchButton,
-                            {backgroundColor: (this.state.selectedDayOptions[0].selected ? 'rgba(250,250,250,0.8)' : "#6b93b1")},
+                            {backgroundColor: (this.state.selectedDayOptions[0].selected ? '#fff' : "#26a2dd")},
                         ]
                     }
                     onPress={() => {
@@ -257,12 +299,12 @@ class ScheduleScreen extends React.Component {
                     }}
 
                 >
-                    <Text style={ {color: (this.state.selectedDayOptions[0].selected ? "#8c030b" : "white")}}>Monday</Text>
+                    <Text style={ {color: (this.state.selectedDayOptions[0].selected ? "#26a2dd" : "white")}}>Monday</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={
                         [styles.daySearchButton,
-                            {backgroundColor: (this.state.selectedDayOptions[1].selected ? 'rgba(250,250,250,0.8)' : "#6b93b1")},
+                            {backgroundColor: (this.state.selectedDayOptions[1].selected ? '#fff' : "#26a2dd")},
                         ]
                     }
                     onPress={() => {
@@ -270,12 +312,12 @@ class ScheduleScreen extends React.Component {
                     }}
 
                 >
-                    <Text style={ {color: (this.state.selectedDayOptions[1].selected ? "#8c030b" : "white")}}>Tuesday</Text>
+                    <Text style={ {color: (this.state.selectedDayOptions[1].selected ? "#26a2dd" : "white")}}>Tuesday</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={
                         [styles.daySearchButton,
-                            {backgroundColor: (this.state.selectedDayOptions[2].selected ? 'rgba(250,250,250,0.8)': "#6b93b1")}
+                            {backgroundColor: (this.state.selectedDayOptions[2].selected ? '#fff': "#26a2dd")}
                         ]
                     }
                     onPress={() => {
@@ -283,13 +325,13 @@ class ScheduleScreen extends React.Component {
                     }}
 
                 >
-                    <Text style={ {color: (this.state.selectedDayOptions[2].selected ? "#8c030b" : "white")}}>Wednesday</Text>
+                    <Text style={ {color: (this.state.selectedDayOptions[2].selected ? "#26a2dd" : "white")}}>Wednesday</Text>
 
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={
                         [styles.daySearchButton,
-                            {backgroundColor: (this.state.selectedDayOptions[3].selected ? 'rgba(250,250,250,0.8)': "#6b93b1")}
+                            {backgroundColor: (this.state.selectedDayOptions[3].selected ? '#fff': "#26a2dd")}
                         ]
                     }
                     onPress={() => {
@@ -297,13 +339,13 @@ class ScheduleScreen extends React.Component {
                     }}
 
                 >
-                    <Text style={ {color: (this.state.selectedDayOptions[3].selected ? "#8c030b" : "white")}}>Thursday</Text>
+                    <Text style={ {color: (this.state.selectedDayOptions[3].selected ? "#26a2dd" : "white")}}>Thursday</Text>
 
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={
                         [styles.daySearchButton,
-                            {backgroundColor: (this.state.selectedDayOptions[4].selected ? 'rgba(250,250,250,0.8)': "#6b93b1")}
+                            {backgroundColor: (this.state.selectedDayOptions[4].selected ? '#fff': "#26a2dd")}
                         ]
                     }
                     onPress={() => {
@@ -311,13 +353,13 @@ class ScheduleScreen extends React.Component {
                     }}
 
                 >
-                    <Text style={ {color: (this.state.selectedDayOptions[4].selected ? "#8c030b" : "white")}}>Friday</Text>
+                    <Text style={ {color: (this.state.selectedDayOptions[4].selected ? "#26a2dd" : "white")}}>Friday</Text>
 
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={
                         [styles.daySearchButton,
-                            {backgroundColor: (this.state.selectedDayOptions[5].selected ? 'rgba(250,250,250,0.8)': "#6b93b1")}
+                            {backgroundColor: (this.state.selectedDayOptions[5].selected ? '#fff': "#26a2dd")}
                         ]
                     }
                     onPress={() => {
@@ -325,13 +367,13 @@ class ScheduleScreen extends React.Component {
                     }}
 
                 >
-                    <Text style={ {color: (this.state.selectedDayOptions[5].selected ? "#8c030b" : "white")}}>Saturday</Text>
+                    <Text style={ {color: (this.state.selectedDayOptions[5].selected ? "#26a2dd" : "white")}}>Saturday</Text>
 
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={
                         [styles.daySearchButton,
-                            {backgroundColor: (this.state.selectedDayOptions[6].selected ? 'rgba(250,250,250,0.8)': "#6b93b1")}
+                            {backgroundColor: (this.state.selectedDayOptions[6].selected ? '#fff': "#26a2dd")}
                         ]
                     }
                     onPress={() => {
@@ -339,67 +381,102 @@ class ScheduleScreen extends React.Component {
                     }}
 
                 >
-                    <Text style={ {color: (this.state.selectedDayOptions[6].selected ? "#8c030b" : "white")}}>Sunday</Text>
+                    <Text style={ {color: (this.state.selectedDayOptions[6].selected ? "#26a2dd" : "white")}}>Sunday</Text>
 
                 </TouchableOpacity>
             </ScrollView>
             </View>
             <View style={{flex:1, }}>
-
-
-                        <Query
-                            query={CLASS_PERIODS}
-                            // variables={{academyTitle: this.state.academyTitle}}
-                            fetchPolicy={'network-only'}
-                        >
-                            {({loading, error, data}) => {
-                                if(loading){
-                                    return(
-                                        <View>
-                                            <Text>Loading</Text>
-                                        </View>
-                                    )
-                                }
-                                if(error){
-                                    console.log(error.message);
-                                    return(<View><Text>`Error! ${error.message}`</Text></View>)
-                                }
-                                let classData = _forEach(data.classPeriods, function(classPeriod, index){
-                                    weekdayList.map(weekday => {
-                                        if(weekday.title === classPeriod.day){
-                                            classPeriod.dayValue= weekday.value;
-                                        }
-                                    })
-                                });
-
-                                console.log('class Data: ', classData)
-
-
+                    <Query
+                        query={CLASS_PERIODS}
+                        // variables={{academyTitle: this.state.academyTitle}}
+                        fetchPolicy={'network-only'}
+                    >
+                        {({loading, error, data}) => {
+                            if(loading){
                                 return(
+                                    <View>
+                                        <Text>Loading</Text>
+                                    </View>
+                                )
+                            }
+                            if(error){
+                                console.log(error.message);
+                                return(<View><Text>`Error! ${error.message}`</Text></View>)
+                            }
+                            let classData = _forEach(data.classPeriods, function(classPeriod, index){
+                                weekdayList.map(weekday => {
+                                    if(weekday.title === classPeriod.day){
+                                        classPeriod.dayValue= weekday.value;
+                                    }
+                                })
+                            });
 
-                                    <View  style={styles.daySlide}>
-                                        {this.state.academyTitle
-                                            ? (
-                                                <View style={styles.dayScheduleContainer}>
-                                                    <Text style={styles.text}>{this.state.academyTitle}</Text>
-                                                </View>
-                                            )
-                                            : null
-                                        }
-                                        {this.state.daySearch
-                                            ? (
-                                                <View style={styles.dayScheduleContainer}>
-                                                    <Text style={styles.text}>{this.state.daySearch}</Text>
-                                                </View>
-                                            )
-                                            : null
-                                        }
+                            console.log('class Data: ', classData)
 
-                                        {
-                                            this.state.daySearch
-                                            ? (
+
+                            return(
+
+                                <View  style={styles.daySlide}>
+                                    {this.state.academyTitle
+                                        ? (
+                                            <View style={styles.dayScheduleContainer}>
+                                                <Text style={styles.text}>{this.state.academyTitle}</Text>
+                                            </View>
+                                        )
+                                        : null
+                                    }
+                                    {this.state.daySearch
+                                        ? (
+                                            <View style={styles.dayScheduleContainer}>
+                                                <Text style={styles.text}>{this.state.daySearch}</Text>
+                                            </View>
+                                        )
+                                        : null
+                                    }
+
+                                    {
+                                        this.state.daySearch
+                                        ? (
+                                            <FlatList
+                                                data={_sortBy(data.classPeriods.filter(obj => obj.day === this.state.daySearch), 'academy.title') }
+                                                keyExtractor={this._keyExtractor}
+                                                renderItem={this._renderDayClassPeriods}
+                                                refreshControl={
+                                                    <RefreshControl
+                                                        refreshing={this.state.refreshing}
+                                                        onRefresh={this._onRefresh}
+                                                        tintColor={'#931414'}
+                                                    />
+                                                }
+                                            />
+                                        )
+                                        : null
+                                    }
+                                    {
+                                        this.state.academyTitle
+                                        ? (
                                                 <FlatList
-                                                    data={_sortBy(data.classPeriods.filter(obj => obj.day === this.state.daySearch), 'academy.title') }
+                                                    data={_sortBy(classData.filter(obj => obj.academy.title === this.state.academyTitle), 'dayValue')}
+                                                    keyExtractor={this._keyExtractor}
+                                                    renderItem={this._renderItem}
+                                                    refreshControl={
+                                                        <RefreshControl
+                                                            refreshing={this.state.refreshing}
+                                                            onRefresh={this._onRefresh}
+                                                            tintColor={'#931414'}
+                                                        />
+                                                    }
+                                                />
+                                        )
+                                        : null
+                                    }
+                                    {
+                                        this.state.academyTitle === null && this.state.daySearch === null
+                                            ? (
+
+                                                <FlatList
+                                                    data={_sortBy(classData, 'dayValue')}
                                                     keyExtractor={this._keyExtractor}
                                                     renderItem={this._renderDayClassPeriods}
                                                     refreshControl={
@@ -412,50 +489,74 @@ class ScheduleScreen extends React.Component {
                                                 />
                                             )
                                             : null
-                                        }
-                                        {
-                                            this.state.academyTitle
-                                            ? (
-                                                    <FlatList
-                                                        data={_sortBy(classData.filter(obj => obj.academy.title === this.state.academyTitle), 'dayValue')}
-                                                        keyExtractor={this._keyExtractor}
-                                                        renderItem={this._renderItem}
-                                                        refreshControl={
-                                                            <RefreshControl
-                                                                refreshing={this.state.refreshing}
-                                                                onRefresh={this._onRefresh}
-                                                                tintColor={'#931414'}
-                                                            />
-                                                        }
-                                                    />
-                                            )
-                                            : null
-                                        }
-                                        {
-                                            this.state.academyTitle === null && this.state.daySearch === null
-                                                ? (
+                                    }
 
-                                                    <FlatList
-                                                        data={_sortBy(classData, 'dayValue')}
-                                                        keyExtractor={this._keyExtractor}
-                                                        renderItem={this._renderDayClassPeriods}
-                                                        refreshControl={
-                                                            <RefreshControl
-                                                                refreshing={this.state.refreshing}
-                                                                onRefresh={this._onRefresh}
-                                                                tintColor={'#931414'}
-                                                            />
-                                                        }
-                                                    />
-                                                )
-                                                : null
-                                        }
+
+                                </View>
+                            )
+                        }}
+                    </Query>
+                <Modal
+                    transparent={true}
+                    animationType={"none"}
+                    visible={this.state.showInstructorModal}
+                    onRequestClose={() => this._toggleInstructorModal() }
+                >
+                    <TouchableOpacity
+                        onPress={() => this._toggleInstructorModal()}
+                    >
+                        <ScrollView contentContainerStyle={styles.modalContainer} showsVerticalScrollIndicator={false}>
+                            <TouchableWithoutFeedback>
+                                <View style={{
+                                    backgroundColor: 'rgba(0,0,0,0.7)',
+                                    minHeight: '70%',
+                                    height: 'auto',
+                                    width: '85%',
+                                    borderWidth:2,
+                                    borderColor: 'white'
+                                }}
+                                >
+                                    <View style={{ flex:1,
+                                        backgroundColor:'transparent',flexDirection:"column",
+                                        justifyContent: 'space-around', margin: 3,
+                                        width: 'auto', padding: 5,
+                                    }}
+                                    >
+
+                                        <View style={{ alignItems: 'center',}}>
+                                            <Text style={{color: 'white'}}>{this.state.modalClassTitle}</Text>
+                                            <Text style={{color: 'white'}}>{this.state.modalClassAcademy}</Text>
+                                        </View>
+                                        <View style={{flex:1, alignItems: 'center', marginTop:15, padding: 8}}>
+                                            <Image
+                                                source={{uri:this.state.instructorPhoto}}
+                                                style={{
+                                                    width:200,
+                                                    height: 200,
+                                                    resizeMode: 'cover',
+                                                    borderRadius: 30,
+                                                    borderWidth:1,
+                                                    borderColor: 'white'
+                                                }}
+                                            />
+
+                                            <Text style={{color: 'white', marginTop: 20}}>{this.state.modalClassInstructor}</Text>
+                                            <Text style={{color: 'white', marginTop: 5}}>{this.state.instructorPhone}</Text>
+
+                                            <Text style={{color: 'white', marginTop: 20}}>{this.state.instructorBio}</Text>
+
+                                            <Text style={{color: 'white', marginTop: 20}}>{this.state.instructorLineage}</Text>
+                                        </View>
+
 
 
                                     </View>
-                                )
-                            }}
-                        </Query>
+
+                                </View>
+                            </TouchableWithoutFeedback>
+                        </ScrollView>
+                    </TouchableOpacity>
+                </Modal>
 
 
             {
@@ -475,6 +576,8 @@ class ScheduleScreen extends React.Component {
                     : null
             }
             </View>
+
+
         </View>
     );
   }
@@ -511,8 +614,11 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'center',
-        backgroundColor: '#931414',
+        backgroundColor: 'rgba(0,0,0,0.8)',
         width: W,
+        marginTop:5,
+        marginBottom:5,
+        padding: 5
     },
     wrapper:{
         marginTop: 10,
@@ -581,6 +687,27 @@ const styles = StyleSheet.create({
     },
     academySearchText: {
         color: '#fff'
+    },
+    modalContainer: {
+        marginTop: 5,
+        height: '95%',
+        flexDirection: 'column',
+        justifyContent:'center',
+        alignItems:'center',
+        padding: 2,
+        marginBottom:30
+
+    },
+    ModalInsideView:{
+        alignItems: 'center',
+        backgroundColor : "#fff",
+        height: '91%' ,
+        width: '90%',
+        borderRadius:10,
+        borderWidth: 3,
+        borderColor: '#156DFA',
+        opacity: 0.95,
+        marginBottom: 30,
     },
 });
 

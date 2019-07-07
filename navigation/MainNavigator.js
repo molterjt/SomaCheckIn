@@ -16,6 +16,7 @@ import FullRosterScreen from "../screens/FullRosterScreen";
 import EditProfileScreen from "../screens/EditProfileScreen";
 import EventScreen from "../screens/EventScreen";
 import ClassManagementScreen from "../screens/ClassManagementScreen";
+import EditClassSessionScreen from "../screens/EditClassSessionScreen";
 
 
 const HomeStack = createStackNavigator({
@@ -77,6 +78,7 @@ EventStack.navigationOptions = {
 
 const ClassSessionManagementStack = createStackNavigator({
     ClassManagement: ClassManagementScreen,
+    EditClassSession: EditClassSessionScreen,
 
 });
 
@@ -92,10 +94,11 @@ export default  createDrawerNavigator(
         ScheduleStack,
         RosterStack,
         EventStack,
-        ClassSessionManagementStack
+        ClassSessionManagementStack,
+
     },
     {
-        initialRouteName: "ProfileStack",
+        initialRouteName: "ClassSessionManagementStack",
         drawerWidth: 200,
         contentComponent: ({navigation}) => {
             return(<MenuDrawer navigation={navigation}/>)

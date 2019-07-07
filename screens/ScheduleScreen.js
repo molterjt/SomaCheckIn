@@ -236,7 +236,7 @@ class ScheduleScreen extends React.Component {
                 <TouchableOpacity
                     style={
                         [styles.academySearchButton,
-                            {backgroundColor: (this.state.selectedOptions[0].selected ? 'rgba(250,250,250,0.8)' : "#8c030b")},
+                            {backgroundColor: (this.state.selectedOptions[0].selected ? 'rgba(250,250,250,0.8)' : "#1cb684")},
                         ]
                     }
                     onPress={() => {
@@ -244,12 +244,12 @@ class ScheduleScreen extends React.Component {
                     }}
 
                 >
-                    <Text style={ {color: (this.state.selectedOptions[0].selected ? "#8c030b" : "white")}}>Dayton</Text>
+                    <Text style={ {color: (this.state.selectedOptions[0].selected ? "#2e5885" : "white")}}>Dayton</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={
                         [styles.academySearchButton,
-                            {backgroundColor: (this.state.selectedOptions[1].selected ? 'rgba(250,250,250,0.8)' : "#8c030b")},
+                            {backgroundColor: (this.state.selectedOptions[1].selected ? 'rgba(250,250,250,0.8)' : "#1cb684")},
                         ]
                     }
                     onPress={() => {
@@ -257,12 +257,12 @@ class ScheduleScreen extends React.Component {
                     }}
 
                 >
-                    <Text style={ {color: (this.state.selectedOptions[1].selected ? "#8c030b" : "white")}}>Oxford</Text>
+                    <Text style={ {color: (this.state.selectedOptions[1].selected ? "#2e5885" : "white")}}>Oxford</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={
                         [styles.academySearchButton,
-                            {backgroundColor: (this.state.selectedOptions[2].selected ? 'rgba(250,250,250,0.8)': "#8c030b")}
+                            {backgroundColor: (this.state.selectedOptions[2].selected ? 'rgba(250,250,250,0.8)': "#1cb684")}
                         ]
                     }
                     onPress={() => {
@@ -270,7 +270,7 @@ class ScheduleScreen extends React.Component {
                     }}
 
                 >
-                    <Text style={ {color: (this.state.selectedOptions[2].selected ? "#8c030b" : "white")}}>West Chester</Text>
+                    <Text style={ {color: (this.state.selectedOptions[2].selected ? "#2e5885" : "white")}}>West Chester</Text>
 
                 </TouchableOpacity>
             </View>

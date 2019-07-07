@@ -165,7 +165,7 @@ class EditProfileScreen extends React.Component{
         this.setState({showBeltPickerModal: !showBeltPickerModal});
     }
 
-    _handleInterestListCheck(id){
+    _handleAcademyListCheck(id){
         let checkedAcademies = this.state.checkedAcademyList;
         if(checkedAcademies && checkedAcademies.includes(id)){
             const index = checkedAcademies.indexOf(id);
@@ -509,7 +509,7 @@ class EditProfileScreen extends React.Component{
                                                         checkedColor={'#1cb684'}
                                                         checkedIcon={'dot-circle-o'}
                                                         uncheckedIcon={'circle-o'}
-                                                        onPress={() => this._handleInterestListCheck(obj.id)}
+                                                        onPress={() => this._handleAcademyListCheck(obj.id)}
                                                         checked={this.state.checkedAcademyList && this.state.checkedAcademyList.includes(obj.id)}
                                                     />
                                                 </View>

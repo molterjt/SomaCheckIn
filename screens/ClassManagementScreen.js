@@ -111,7 +111,6 @@ class ClassManagementScreen extends React.Component{
 
     _academyOptionKeyExtractor = (item,index) => item;
 
-
     render() {
         return (
             <View style={styles.container}>
@@ -157,13 +156,8 @@ class ClassManagementScreen extends React.Component{
                                                 marginBottom: 20,
                                                 width: '90%',
                                                 flex:1,
-
-                                                // backgroundColor:'rgba(0,0,0,0.6)'
-
                                             }}
                                         >
-
-
                                             <FlatList
                                                 ref={ref => this.flatList = ref}
                                                 initialNumToRender={1}
@@ -248,17 +242,12 @@ class ClassManagementScreen extends React.Component{
                                                                         title={'Close'}
                                                                         onPress={() => this._toggleEditClassSessionModal()}
                                                                     />
-
                                                                 </View>
-
                                                             </View>
                                                         </TouchableWithoutFeedback>
                                                     </ScrollView>
                                                 </TouchableOpacity>
                                             </Modal>
-
-
-
                                         </View>
                                     );
                                 }
@@ -266,11 +255,6 @@ class ClassManagementScreen extends React.Component{
                         </Query>
                     )
                 }
-
-
-
-
-
             </View>
         );
     }

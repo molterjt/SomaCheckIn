@@ -283,51 +283,6 @@ class EditProfileScreen extends React.Component{
                             : null
                         }
 
-                        {/*<Text style={styles.inputLabel}>Email</Text>*/}
-                        {/*<TextInput*/}
-                            {/*style={styles.textInput}*/}
-                            {/*onChangeText={(email) => {*/}
-                                {/*this.setState({email});*/}
-
-                            {/*}}*/}
-                            {/*value={this.state.email}*/}
-                            {/*onBlur={() => {*/}
-                                {/*this.setState({emailError: validate('email', email)});*/}
-                            {/*}}*/}
-                            {/*type={'text'}*/}
-                            {/*accessibilityLabel={'Email field for Registration'}*/}
-                            {/*autoCapitalize={'none'}*/}
-                            {/*underlineColorAndroid={'transparent'}*/}
-                            {/*autoCorrect={false}*/}
-                            {/*placeholderTextColor={'#4f4f4f'}*/}
-                            {/*keyboardAppearance={'dark'}*/}
-                        {/*/>*/}
-
-                        {/*{emailError*/}
-                            {/*? <Text style={{color: '#c81515', textAlign:'center'}}>{emailError}</Text>*/}
-                            {/*: null*/}
-                        {/*}*/}
-                        {/*<Text style={styles.inputLabel}>Password</Text>*/}
-                        {/*<TextInput*/}
-                            {/*style={styles.textInput}*/}
-                            {/*onChangeText={(password) => this.setState({password})}*/}
-                            {/*value={this.state.password}*/}
-                            {/*onBlur={() => {*/}
-                                {/*this.setState({passwordError: validate('password', password)});*/}
-                            {/*}}*/}
-                            {/*type={'password'}*/}
-                            {/*accessibilityLabel={'Password field for Registration'}*/}
-                            {/*autoCapitalize={'none'}*/}
-                            {/*underlineColorAndroid={'transparent'}*/}
-                            {/*autoCorrect={false}*/}
-                            {/*placeholderTextColor={'#4f4f4f'}*/}
-                            {/*keyboardAppearance={'dark'}*/}
-                            {/*secureTextEntry*/}
-                        {/*/>*/}
-                        {/*{passwordError*/}
-                            {/*? <Text style={{color: '#c81515', textAlign:'center'}}>{passwordError}</Text>*/}
-                            {/*: null*/}
-                        {/*}*/}
                         <Text style={styles.inputLabel}>Phone</Text>
                         <TextInput
                             style={styles.textInput}
@@ -576,8 +531,6 @@ const styles = StyleSheet.create({
         padding: 10,
         borderWidth:0.5,
         borderColor:'#8c030b',
-        // borderBottomColor: '#000000',
-        // borderBottomWidth: 1,
         backgroundColor: "#fff"
     },
     inputLabel:{
@@ -592,7 +545,6 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         alignItems: 'center',
         justifyContent: 'center',
-        //backgroundColor: 'rgba(155, 10, 2, 0.9)',
         backgroundColor: '#8c030b',
         padding: 8,
         marginTop: 20,

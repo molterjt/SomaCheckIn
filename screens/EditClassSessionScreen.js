@@ -9,7 +9,6 @@ import { Svg } from 'expo';
 import _filter from 'lodash/filter';
 import _find from 'lodash/find';
 
-
 import Tag from "../components/Tag";
 import Technique from "../components/Technique";
 
@@ -833,8 +832,6 @@ const styles = StyleSheet.create({
         padding: 10,
         borderWidth: 0.5,
         borderColor: '#8c030b',
-        // borderBottomColor: '#000000',
-        // borderBottomWidth: 1,
         backgroundColor: "#fff"
     },
     modalContainer: {
@@ -859,90 +856,3 @@ const styles = StyleSheet.create({
         marginBottom: 30,
     },
 });
-
-
-{/****TAGS*****/}
-{/*<Query query={GET_TAGS} variables={{tagSearch: this.state.tagSearch}} >*/}
-{/*{({error, loading, data}) => {*/}
-{/*if(error) return <Text>{error.message}</Text>;*/}
-{/*if(loading) return <Text>Loading...</Text>;*/}
-{/*return(*/}
-{/*<View style={{*/}
-{/*flex:1,*/}
-{/*width: '100%',*/}
-{/*borderTopWidth: 1,*/}
-{/*borderTopColor: '#1519b4',*/}
-{/*borderBottomWidth: 1,*/}
-{/*borderBottomColor: '#1519b4', }}>*/}
-{/*<Text style={{*/}
-{/*color: '#1519b4',*/}
-{/*textAlign:'center',*/}
-{/*fontSize: 14,*/}
-{/*fontWeight:'500',*/}
-{/*padding:3,*/}
-{/*}}>*/}
-{/*Tags*/}
-{/*</Text>*/}
-{/*<TextInput*/}
-{/*style={styles.textInput}*/}
-{/*onChangeText={(tagSearch) => this.setState({tagSearch})}*/}
-{/*value={this.state.tagSearch}*/}
-{/*accessibilityLabel={'Tag Search Field'}*/}
-{/*underlineColorAndroid={'transparent'}*/}
-{/*autoCorrect={false}*/}
-{/*placeholderTextColor={'#4f4f4f'}*/}
-{/*keyboardAppearance={'dark'}*/}
-{/*placeholder={'Tag Search'}*/}
-{/*/>*/}
-{/*<FlatList*/}
-{/*data={data.tags}*/}
-{/*renderItem={this._renderTags}*/}
-{/*keyExtractor={this._tagKeyExtractor}*/}
-{/*horizontal*/}
-{/*/>*/}
-{/*<Button*/}
-{/*title={'Create Tag'}*/}
-{/*onPress={() => this._toggleCreateTagModal()}*/}
-{/*/>*/}
-{/*<Modal*/}
-{/*transparent={true}*/}
-{/*animationType={"none"}*/}
-{/*visible={this.state.showCreateTagModal}*/}
-{/*onRequestClose={() => this._toggleCreateTagModal() }*/}
-{/*>*/}
-{/*<TouchableOpacity*/}
-{/*onPress={() => this._toggleCreateTagModal()}*/}
-{/*>*/}
-{/*<ScrollView contentContainerStyle={styles.modalContainer} showsVerticalScrollIndicator={false}>*/}
-{/*<TouchableWithoutFeedback>*/}
-{/*<View style={{*/}
-{/*backgroundColor: 'rgba(0,0,0,0.7)',*/}
-{/*minHeight: '80%',*/}
-{/*height: 'auto',*/}
-{/*width: '85%',*/}
-{/*borderWidth:2,*/}
-{/*borderColor: 'white'*/}
-{/*}}*/}
-{/*>*/}
-{/*<View style={{*/}
-{/*backgroundColor:'transparent',flexDirection:"column",*/}
-{/*justifyContent: 'space-around', margin: 3,*/}
-{/*width: 'auto', padding: 5,*/}
-{/*}}*/}
-{/*>*/}
-{/*<Button*/}
-{/*title={'Close'}*/}
-{/*onPress={() => this._toggleCreateTagModal()}*/}
-{/*/>*/}
-
-{/*</View>*/}
-
-{/*</View>*/}
-{/*</TouchableWithoutFeedback>*/}
-{/*</ScrollView>*/}
-{/*</TouchableOpacity>*/}
-{/*</Modal>*/}
-{/*</View>*/}
-{/*);*/}
-{/*}}*/}
-{/*</Query>*/}

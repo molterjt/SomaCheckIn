@@ -75,13 +75,9 @@ const RightActions = ({ progress, dragX, onPress, objectButton }) => {
         extrapolate: 'clamp',
     });
     return (
-       // <TouchableOpacity onPress={onPress}>
             <Animated.View style={styles.rightAction}>
-
                     {objectButton}
-
             </Animated.View>
-        //</TouchableOpacity>
     );
 };
 
@@ -95,7 +91,6 @@ const ListItem = ({ onSwipeFromLeft, onRightPress, swipeWhat, objectButtonRight 
                 progress={progress}
                 dragX={dragX}
                 objectButton={objectButtonRight}
-                //onPress={onRightPress}
             />
         )}
     >

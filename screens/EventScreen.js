@@ -119,11 +119,6 @@ export default class EventScreen extends React.Component{
                         eventImage={'http://www.somajj.com/assets/pictures/garrettthumb.jpg'}
                     />
                 </View>
-
-
-
-
-
                 </Swiper>
 
             </View>
@@ -138,19 +133,3 @@ const styles = StyleSheet.create({
         justifyContent:'center'
     }
 });
-
-{/*
-
-<Event
-    title={`Scott Evans' Super Seminar`}
-    date={'4/20/2020'}
-    day={'Saturday'}
-    time={'10:00 a.m.'}
-    location={'Oxford'}
-    type={'Seminar'}
-    price={'$95'}
-    note={`Scott Evans' Super Seminar will include all of the secrets that he holds onto to make his game so strong.  The seminar will run for about 3.5 hours followed by a group picture and an opportunity for an open mat.`}
-    eventImage={'http://www.somajj.com/assets/pictures/scottthumb.jpg'}
-/>
-
-*/}

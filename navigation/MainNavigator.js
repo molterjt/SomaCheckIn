@@ -98,7 +98,7 @@ export default  createDrawerNavigator(
 
     },
     {
-        initialRouteName: "ClassSessionManagementStack",
+        initialRouteName: "HomeStack",
         drawerWidth: 200,
         contentComponent: ({navigation}) => {
             return(<MenuDrawer navigation={navigation}/>)

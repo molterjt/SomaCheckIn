@@ -15,8 +15,6 @@ import MenuButton from '../components/MenuButton'
 import _forEach from 'lodash/forEach'
 import _sortBy from 'lodash/sortBy';
 
-
-
 const window = Dimensions.get('window');
 const W = window.width;
 const H = window.height;
@@ -710,7 +708,3 @@ const styles = StyleSheet.create({
         marginBottom: 30,
     },
 });
-
-{/*<View style={{flex:1, alignItems: 'center', marginTop:30}}>*/}
-{/*<Text style={{fontStyle:'italic', fontSize: 16}}>Filter By Academy or Day</Text>*/}
-{/*</View>*/}

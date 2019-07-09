@@ -3,6 +3,7 @@ import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import PropTypes from 'prop-types';
 import {Ionicons, AntDesign} from '@expo/vector-icons';
 
+{/***Tag***/}
 export default class Tag extends React.Component{
     constructor(props){
         super(props)
@@ -44,8 +45,3 @@ Tag.propTypes = {
     onLongPress: PropTypes.func,
 };
 
-const styles = {
-    tagContainer:{},
-    tagText:{},
-    tagAdd:{},
-}

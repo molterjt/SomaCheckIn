@@ -8,12 +8,6 @@ import {
 } from 'react-native';
 import Colors from '../constants/Colors';
 
-
-
-
-
-
-
 export default class Belt extends React.Component{
     constructor(props){
         super(props);
@@ -68,7 +62,7 @@ Belt.propTypes = {
     style: PropTypes.object,
     stripes: PropTypes.number,
     BlackBelt: PropTypes.bool,
-}
+};
 
 const styles = StyleSheet.create({
    belt:{
@@ -81,8 +75,5 @@ const styles = StyleSheet.create({
        shadowColor: 'black',
        shadowOpacity: 1.0,
        shadowRadius: 2,
-
-
    },
-
 });

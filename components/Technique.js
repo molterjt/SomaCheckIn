@@ -16,7 +16,6 @@ export default class Technique extends React.Component{
             techAdded: false,
         }
     }
-
     // static getDerivedStateFromProps(nextProps, prevState) {
     //     if (nextProps.techniqueAdded !== prevState.techAdded) {
     //         return {
@@ -135,7 +134,3 @@ Technique.propTypes = {
     showAddButton: PropTypes.bool,
     techColor: PropTypes.string,
 };
-
-const styles = StyleSheet.create({
-
-});

@@ -156,7 +156,6 @@ class LoginScreen extends React.Component{
                     padding: 40,
                 }}
                 >
-
                     <Image
                         source={WhiateASRash}
                         resizeMode={'contain'}
@@ -241,9 +240,7 @@ class LoginScreen extends React.Component{
                             this.clearUserFormInputs();
 
                         }}
-
                         disabled={this.checkRegisterCredentials()}
-
                     >
                         <Text style={styles.buttonText}>Submit</Text>
                     </TouchableOpacity>
@@ -253,13 +250,7 @@ class LoginScreen extends React.Component{
                     title={"Need to Sign Up"}
                     onPress={() => this.props.navigation.navigate('SignUp')}
                 />
-
-
-
             </View>
-
-
-
         );
     }
 }
@@ -287,15 +278,12 @@ const styles = StyleSheet.create({
         padding: 10,
         borderWidth:0.5,
         borderColor:'#8c030b',
-        // borderBottomColor: '#000000',
-        // borderBottomWidth: 1,
         backgroundColor: "#fff"
     },
     formButton: {
         alignSelf: 'center',
         alignItems: 'center',
         justifyContent: 'center',
-        //backgroundColor: 'rgba(155, 10, 2, 0.9)',
         backgroundColor: '#8c030b',
         padding: 8,
         marginTop: 20,

@@ -1484,23 +1484,3 @@ const styles = StyleSheet.create({
         shadowRadius: 1,
     },
 });
-
-// <ListItem
-//     key={index}
-//     onSwipeFromLeft={() => console.log('swiped from left!')}
-//     onRightPress={() => console.log('pressed right!')}
-//     swipeWhat={
-//         <RosterRow
-//             key={index}
-//             memberId={obj.id}
-//             beltColor={obj.beltColor}
-//             stripeCount={obj.stripeCount}
-//             joinDate={obj.joinDate}
-//             firstName={obj.firstName}
-//             lastName={obj.lastName}
-//             navigation={this.props.navigation}
-//             checkedIn={false}
-//             classSessionTitle={}
-//         />
-//     }
-// />

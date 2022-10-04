@@ -14,7 +14,7 @@
     "@expo/samples": "2.1.1",
     "apollo-boost": "^0.3.1",
     "apollo-link-context": "^1.0.17",
-    "expo": "^32.0.0",
+    "expo": "^46.0.14",
     "graphql": "^14.3.0",
     "graphql-tag": "^2.10.1",
     "lodash": "^4.17.11",
